@@ -1,0 +1,6 @@
+
+Convert with:
+
+#+BEGIN_EXAMPLE shell
+iconv -f iso8859-1 -t utf-8 < srcdata.tsv > srcdata-utf8.tsv
+#+END_EXAMPLE
