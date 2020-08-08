@@ -17,7 +17,6 @@ Copyright (c) 2019 John Goerzen
 
  */
 
-use crate::nytparser;
 use crate::arecord::ARecord;
 use chrono::naive::NaiveDate;
 use std::collections::HashMap;
@@ -93,7 +92,7 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
 }
 
 /// Separate by county
-pub fn parser_to_county<I: Iterator<Item = nytparser::Record>>(
+pub fn parser_to_county<I: Iterator<Item = ARecord>>(
     input: I,
     datelist: &Vec<NaiveDate>,
     window: u32,
@@ -101,13 +100,11 @@ pub fn parser_to_county<I: Iterator<Item = nytparser::Record>>(
     let mut hm = HashMap::new();
     let templatehm = newhashmap(datelist);
     for item in input {
-        hm.entry(item.county.clone())
+        let county = item.county.clone().unwrap();
+        hm.entry(county)
             .or_insert(templatehm.clone())
-            .entry(item.date)
-            .and_modify(|rec| {
-                rec.totalcases = item.cases;
-                rec.totaldeaths = item.deaths
-            });
+            .entry(item.date.unwrap())
+            .and_modify(|rec| rec.combine(&item));
     }
 
     for (_key, val) in &mut hm {

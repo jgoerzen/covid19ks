@@ -17,8 +17,12 @@ Copyright (c) 2019 John Goerzen
 
  */
 
+use chrono::naive::NaiveDate;
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct ARecord {
+    pub state: Option<String>,
+    pub county: Option<String>,
     pub totalcases: i32,
     pub newcases: i32,
     pub newcaseavg: f64,
@@ -29,11 +33,34 @@ pub struct ARecord {
     pub totalactive: i32,
     pub incidence_rate: f64,
     pub case_fatality_ratio: f64,
+    pub date: Option<NaiveDate>,
+}
+
+impl ARecord {
+    /// Add the contents of the other to this one.
+    pub fn combine(&mut self, other: &ARecord) {
+        self.totalcases += other.totalcases;
+        self.totaldeaths += other.totaldeaths;
+        self.totalrecovered += other.totalrecovered;
+        self.totalactive += other.totalactive;
+        self.incidence_rate = other.incidence_rate;
+        self.case_fatality_ratio = other.case_fatality_ratio;
+    }
+
+    pub fn getnewcaseavg(&self) -> f64 {
+        self.newcaseavg
+    }
+
+    pub fn getnewdeathavg(&self) -> f64 {
+        self.newdeathavg
+    }
 }
 
 impl Default for ARecord {
     fn default() -> ARecord {
         ARecord {
+            state: None,
+            county: None,
             totalcases: 0,
             newcases: 0,
             newcaseavg: 0.0,
@@ -44,16 +71,8 @@ impl Default for ARecord {
             totalactive: 0,
             incidence_rate: 0.0,
             case_fatality_ratio: 0.0,
+            date: None,
         }
     }
 }
 
-impl ARecord {
-    pub fn getnewcaseavg(&self) -> f64 {
-        self.newcaseavg
-    }
-
-    pub fn getnewdeathavg(&self) -> f64 {
-        self.newdeathavg
-    }
-}

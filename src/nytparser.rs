@@ -18,6 +18,7 @@ Copyright (c) 2019-2020 John Goerzen
 
 use chrono;
 use chrono::naive::NaiveDate;
+use crate::arecord::ARecord;
 use csv;
 use serde::{de, Deserialize, Deserializer};
 use std::error::Error;
@@ -61,6 +62,20 @@ pub fn rec_to_struct(record: csv::StringRecord) -> Option<Record> {
     return None;
 }
 
+/// Convert to (County, ARecord) tuple.
+pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
+    match rec {
+        Some(r) =>
+            Some(ARecord { state: Some(r.state),
+                           county: Some(r.county),
+                           date: Some(r.date),
+                           totalcases: r.cases,
+                           totaldeaths: r.deaths,
+                           ..ARecord::default()}),
+        None => None,
+    }
+}
+
 pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<dyn Error>> {
     let file = File::open(filename)?;
     let rdr = csv::ReaderBuilder::new()
@@ -82,14 +97,14 @@ pub fn parse_records<'a, A: std::io::Read>(
 
 pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
     striter: A,
-) -> impl Iterator<Item = Record> {
-    striter.filter_map(|x| rec_to_struct(x))
+) -> impl Iterator<Item = ARecord> {
+    striter.filter_map(|x| struct_to_arecord(rec_to_struct(x)))
 }
 
-/* Will panic on parse error. */
+/* Will panic on parse error.  */
 pub fn parse<'a, A: std::io::Read>(
     rdr: &'a mut csv::Reader<A>,
-) -> impl Iterator<Item = Record> + 'a {
+) -> impl Iterator<Item = ARecord> + 'a {
     let recs = parse_records(rdr.byte_records());
     parse_to_final(recs)
 }
