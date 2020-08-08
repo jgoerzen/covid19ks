@@ -47,8 +47,11 @@ fn main() {
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);
     let filtered = vr.filter(|x| x.state == "Kansas");
-    for item in filtered {
-        println!("{:?}", item);
+    let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
+
+    let testcounty = bycounty.get("Marion").unwrap();
+    for item in datelist_full {
+        println!("{}, {:?}", item, testcounty.get(&item).unwrap());
     }
 }
 

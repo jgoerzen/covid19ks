@@ -25,8 +25,8 @@ use chrono::naive::NaiveDate;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ARecord {
-    pub totalcases: u32,
-    pub newcases: u32,
+    pub totalcases: i32,
+    pub newcases: i32,
     pub newcaseavg: f64,
 }
 
@@ -101,7 +101,7 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(input: I, datelist: 
         hm.entry(item.county.clone()).or_insert(templatehm.clone()).entry(item.date).and_modify(|rec| {rec.totalcases = item.cases});
     }
 
-    for (_, val) in &mut hm {
+    for (_key, val) in &mut hm {
         setnewcase(val, datelist);
         setnewcaseavg(val, datelist, window);
     }
