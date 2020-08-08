@@ -4,7 +4,7 @@ In 2020, some counties in Kansas adopted a mask requirement while others didn't.
 
 Some people questioned whether this chart was misleading due to its use of different Y-axis.  This repository produces a similar chart with a unified Y-axis and shows that the result was not misleading.  Here is the chart I generated:
 
-[[main.png]]
+![](main.png)
 
 The source data is us-counties.csv from the [covid-19-data set](https://github.com/nytimes/covid-19-data).  It is passed as the one parameter to the executable in this repository.  [This particular version](https://github.com/nytimes/covid-19-data/blob/42590181052a7591385562a59fdd545bd478f763/us-counties.csv) was used for the generation of the graph here, so you can verify these results for yourself.
 
