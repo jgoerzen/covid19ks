@@ -37,6 +37,9 @@ fn main() {
     let first_date = NaiveDate::from_ymd(2020, 7, 12);
     let last_date = NaiveDate::from_ymd(2020, 8, 3);
 
+    let data_first_date = NaiveDate::from_ymd(2020, 1, 21);
+    let data_last_date = NaiveDate::from_ymd(2020, 8, 7);
+
     // Source: https://www.kansas.com/news/politics-government/article244091222.html
     let maskcounties = vec![
         "Jewell",
@@ -55,9 +58,10 @@ fn main() {
     ];
     let datelist_output = analysis::alldates(&first_date, &last_date);
     let datelist_full = analysis::alldates(
-        &NaiveDate::from_ymd(2020, 1, 21),
-        &NaiveDate::from_ymd(2020, 8, 6),
+        &data_first_date,
+        &data_last_date,
     );
+    let datelist_updated = analysis::alldates(&first_date, &data_last_date);
 
     let file_path = get_first_arg()
         .expect("need args")
@@ -81,6 +85,17 @@ fn main() {
         &datelist_output,
     );
     charts::write(
+        "main-updated.png",
+        analysis::ARecord::getnewcaseavg,
+        "COVID-19: Masks vs no-mask counties, KS",
+        "7-day moving average of new cases, % relative to July 12",
+        60f64,
+        130f64,
+        &masks,
+        &nomasks,
+        &datelist_updated,
+    );
+    charts::write(
         "deaths.png",
         analysis::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
@@ -90,6 +105,17 @@ fn main() {
         &masks,
         &nomasks,
         &datelist_output,
+    );
+    charts::write(
+        "deaths-updated.png",
+        analysis::ARecord::getnewdeathavg,
+        "COVID-19 deaths: Mask vs no-mask",
+        "7-day moving average of new deaths, % relative to July 12",
+        20f64,
+        400f64,
+        &masks,
+        &nomasks,
+        &datelist_updated,
     );
     charts::writecounties(
         "counties.png",
@@ -101,5 +127,16 @@ fn main() {
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &bycounty,
         &datelist_output,
+    );
+    charts::writecounties(
+        "counties-updated.png",
+        analysis::ARecord::getnewcaseavg,
+        "COVID-19 cases in Selected Counties, Kansas",
+        "7-day moving average of new cases, % relative to July 12",
+        20f64,
+        200f64,
+        &vec!["Marion", "McPherson", "Harvey", "Saline"],
+        &bycounty,
+        &datelist_updated,
     );
 }
