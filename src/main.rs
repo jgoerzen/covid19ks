@@ -19,9 +19,11 @@ Copyright (c) 2019 John Goerzen
 use std::env;
 use std::ffi::OsString;
 use std::error::Error;
+use chrono::naive::NaiveDate;
 
 mod parser;
 mod analysis;
+
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -32,6 +34,9 @@ fn get_first_arg() -> Result<OsString, Box<Error>> {
     }
 }
 fn main() {
+    let first_date = NaiveDate::from_ymd(2020, 7, 12);
+    let last_date = NaiveDate::from_ymd(2020, 8, 3);
+    let maskcounties = vec!["Foo"];
     let file_path = get_first_arg().expect("need args").into_string().expect("conversion issue");
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);

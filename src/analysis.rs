@@ -20,8 +20,75 @@ Copyright (c) 2019 John Goerzen
 use crate::parser;
 use rctree::Node;
 use std::collections::HashMap;
+use chrono::naive::NaiveDate;
+
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ARecord {
-   pub foo: String,
+    pub totalcases: u32,
+    pub newcases: u32,
+    pub newcaseavg: f64,
+}
+
+impl Default for ARecord {
+    fn default() -> ARecord {
+        ARecord {totalcases: 0, newcases: 0, newcaseavg: 0.0}
+    }
+}
+
+/// Returns all dates in the inclusive range.
+pub fn alldates(first_date: &NaiveDate, last_date: &NaiveDate) -> Vec<NaiveDate> {
+    let mut date = first_date.clone();
+    let mut retval = Vec::new();
+    while date <= *last_date {
+        retval.push(date);
+        date = date.succ();
+    }
+    retval
+}
+
+/// Initialize the hashmap
+pub fn newhashmap(datelist: &Vec<NaiveDate>) -> HashMap<NaiveDate, ARecord> {
+    let mut retval = HashMap::new();
+    for item in datelist {
+        retval.insert(item.clone(), ARecord::default());
+    }
+    retval
+}
+
+/// Populate the new cases in the hashmap
+pub fn setnewcase(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
+    for item in datelist {
+        // Find the previous cases
+        let mut previouscases = 0;
+        let mut prevdate = item.pred();
+        while prevdate >= datelist[0] {
+            if let Some(rec) = hm.get(&prevdate) {
+                previouscases = rec.totalcases;
+                break;
+            }
+            prevdate = prevdate.pred();
+        }
+
+        hm.entry(*item).and_modify(|rec| {rec.newcases = rec.totalcases - previouscases});
+    }
+}
+
+/// Populate the moving average in the hashmap
+pub fn setnewcaseavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
+    for item in datelist {
+        // First, find the previous cases.
+        let mut accum = 0;
+        let mut thisdate = item.clone();
+        let mut counter = window;
+        while counter > 0 {
+            accum += hm.get(&thisdate).map_or(0, |rec| rec.newcases);
+            thisdate = thisdate.pred();
+            counter -= 1;
+        }
+
+        let avg = f64::from(accum) / f64::from(window);
+        hm.entry(*item).and_modify(|rec| {rec.newcaseavg = avg});
+
+    }
 }

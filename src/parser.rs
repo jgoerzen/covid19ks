@@ -36,9 +36,9 @@ pub struct Record {
     #[serde(rename = "FIPS")]
     pub fips: String,
     #[serde(rename = "Cases")]
-    pub cases: i64,
+    pub cases: u32,
     #[serde(rename = "Deaths")]
-    pub deaths: i64,
+    pub deaths: u32,
 }
 
 fn date_from_str<'de, S, D>(deserializer: D) -> Result<S, D::Error>
