@@ -19,6 +19,7 @@ Copyright (c) 2019-2020 John Goerzen
 use chrono;
 use chrono::naive::NaiveDate;
 use crate::arecord::ARecord;
+use crate::parseutil::*;
 use csv;
 use serde::{de, Deserialize, Deserializer};
 use std::error::Error;
@@ -28,38 +29,35 @@ use std::str::FromStr;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Record {
-    #[serde(rename = "Date", deserialize_with = "date_from_str")]
-    pub date: NaiveDate,
-    #[serde(rename = "County")]
-    pub county: String,
-    #[serde(rename = "State")]
-    pub state: String,
     #[serde(rename = "FIPS")]
     pub fips: String,
-    #[serde(rename = "Cases")]
+    #[serde(rename = "Admin2")]
+    pub county: String,
+    #[serde(rename = "Province_State")]
+    pub state: String,
+    #[serde(rename = "Country_Region")]
+    pub country: String,
+    #[serde(rename = "Last_Update")]
+    pub last_update: String,
+    #[serde(rename = "Lat")]
+    pub lat: String,
+    #[serde(rename = "Long_")]
+    pub long: String,
+    #[serde(rename = "Confirmed")]
     pub cases: i32,
     #[serde(rename = "Deaths")]
     pub deaths: i32,
-}
+    #[serde(rename = "Recovered")]
+    pub recovered: i32,
+    #[serde(rename = "Active")]
+    pub active: i32,
+    #[serde(rename = "Combined_Key")]
+    pub combined_key: String,
+    #[serde(rename = "Incidence_Rate")]
+    pub incidence_rate: f64,
+    #[serde(rename = "Case-Fatality_Ratio")]
+    pub case_fatality_ratio: f64,
 
-fn date_from_str<'de, S, D>(deserializer: D) -> Result<S, D::Error>
-where
-    S: FromStr,      // Required for S::from_str...
-    S::Err: Display, // Required for .map_err(de::Error::custom)
-    D: Deserializer<'de>,
-{
-    let s: String = Deserialize::deserialize(deserializer)?;
-    S::from_str(&s).map_err(de::Error::custom)
-}
-
-/* The input data is a bunch of 1-column notes at the end, citation details, etc.
-These won't parse as a record, so just discard them. */
-pub fn rec_to_struct(record: csv::StringRecord) -> Option<Record> {
-    if record.len() != 1 {
-        let rec: Record = record.deserialize(None).expect("rec_to_struct");
-        return Some(rec);
-    }
-    return None;
 }
 
 /// Convert to (County, ARecord) tuple.
@@ -71,28 +69,13 @@ pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
                            date: Some(r.date),
                            totalcases: r.cases,
                            totaldeaths: r.deaths,
+                           totalrecovered: r.recovered,
+                           totalactive: r.active,
+                           incidence_rate: r.incidence_rate,
+                           case_fatality_ratio: r.case_fatality_ratio,
                            ..ARecord::default()}),
         None => None,
     }
-}
-
-pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<dyn Error>> {
-    let file = File::open(filename)?;
-    let rdr = csv::ReaderBuilder::new()
-        .delimiter(b',')
-        .flexible(true)
-        .from_reader(file);
-    Ok(rdr)
-}
-
-/*
-
-This type signature with hints from https://stackoverflow.com/questions/27535289/what-is-the-correct-way-to-return-an-iterator-or-any-other-trait
-*/
-pub fn parse_records<'a, A: std::io::Read>(
-    byteiter: csv::ByteRecordsIter<'a, A>,
-) -> impl Iterator<Item = csv::StringRecord> + 'a {
-    byteiter.map(|x| csv::StringRecord::from_byte_record_lossy(x.expect("Error in parse_records")))
 }
 
 pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(

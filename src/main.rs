@@ -25,11 +25,13 @@ mod analysis;
 mod charts;
 mod nytparser;
 mod arecord;
+mod parseutil;
+mod jhuparser;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
-fn get_first_arg() -> Result<OsString, Box<dyn Error>> {
-    match env::args_os().nth(1) {
+fn get_nth_arg(arg: usize) -> Result<OsString, Box<dyn Error>> {
+    match env::args_os().nth(arg) {
         None => Err(From::from("expected 1 argument, but got none")),
         Some(file_path) => Ok(file_path),
     }
@@ -64,12 +66,11 @@ fn main() {
     );
     let datelist_updated = analysis::alldates(&first_date, &data_last_date);
 
-    let file_path = get_first_arg()
+    let file_path = get_nth_arg(1)
         .expect("need args")
         .into_string()
         .expect("conversion issue");
-    let mut rdr = nytparser::parse_init_file(file_path).expect("Couldn't init parser");
-    let vr = nytparser::parse(&mut rdr);
+    let vr = nytparser::parse(file_path);
     let filtered = vr.filter(|x| x.state == Some(String::from("Kansas")));
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
