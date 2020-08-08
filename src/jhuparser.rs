@@ -85,14 +85,12 @@ pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
 }
 
 /* Will panic on parse error.  */
-pub fn parse_rdr<'a, A: std::io::Read>(
+pub fn parse_init(
     date: &NaiveDate,
     base_dir: &str,
-) -> impl Iterator<Item = ARecord> + 'a {
+) -> (NaiveDate, csv::Reader<File>) {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
-    let mut rdr = parse_init_file(filename).expect("Couldn't init parser");
-    let recs = parse_records(rdr.byte_records());
-    parse_to_final(recs)
+    (date.clone(), parse_init_file(filename).expect("Couldn't init parser"))
 }
 
 /* Will panic on parse error.  */
@@ -101,7 +99,8 @@ pub fn parse<'a>(
     datelist: &Vec<NaiveDate>)
  -> impl Iterator<Item = ARecord> + 'a {
 
-    datelist.iter().map(|x| flat_map(|date| parse_rdr(base_dir, date))
+    datelist.iter().flat_map(|date| parse_init(date, base_dir.as_ref()))
+        .flat_map(|(date, rdr)| parse_jhu_rec(date, rdr.byte_records()))
 }
 
 
