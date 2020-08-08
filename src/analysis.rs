@@ -18,41 +18,9 @@ Copyright (c) 2019 John Goerzen
  */
 
 use crate::nytparser;
+use crate::arecord::ARecord;
 use chrono::naive::NaiveDate;
 use std::collections::HashMap;
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct ARecord {
-    pub totalcases: i32,
-    pub newcases: i32,
-    pub newcaseavg: f64,
-    pub totaldeaths: i32,
-    pub newdeaths: i32,
-    pub newdeathavg: f64,
-}
-
-impl Default for ARecord {
-    fn default() -> ARecord {
-        ARecord {
-            totalcases: 0,
-            newcases: 0,
-            newcaseavg: 0.0,
-            totaldeaths: 0,
-            newdeaths: 0,
-            newdeathavg: 0.0,
-        }
-    }
-}
-
-impl ARecord {
-    pub fn getnewcaseavg(&self) -> f64 {
-        self.newcaseavg
-    }
-
-    pub fn getnewdeathavg(&self) -> f64 {
-        self.newdeathavg
-    }
-}
 
 /// Returns all dates in the inclusive range.
 pub fn alldates(first_date: &NaiveDate, last_date: &NaiveDate) -> Vec<NaiveDate> {

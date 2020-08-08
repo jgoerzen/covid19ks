@@ -24,6 +24,7 @@ use std::ffi::OsString;
 mod analysis;
 mod charts;
 mod nytparser;
+mod arecord;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -75,7 +76,7 @@ fn main() {
     let (masks, nomasks) = analysis::separate(&bycounty, &maskcounties, &datelist_full, 7);
     charts::write(
         "main.png",
-        analysis::ARecord::getnewcaseavg,
+        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
@@ -86,7 +87,7 @@ fn main() {
     );
     charts::write(
         "main-updated.png",
-        analysis::ARecord::getnewcaseavg,
+        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
@@ -97,7 +98,7 @@ fn main() {
     );
     charts::write(
         "deaths.png",
-        analysis::ARecord::getnewdeathavg,
+        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
@@ -108,7 +109,7 @@ fn main() {
     );
     charts::write(
         "deaths-updated.png",
-        analysis::ARecord::getnewdeathavg,
+        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
@@ -119,7 +120,7 @@ fn main() {
     );
     charts::writecounties(
         "counties.png",
-        analysis::ARecord::getnewcaseavg,
+        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         20f64,
@@ -130,7 +131,7 @@ fn main() {
     );
     charts::writecounties(
         "counties-updated.png",
-        analysis::ARecord::getnewcaseavg,
+        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         20f64,

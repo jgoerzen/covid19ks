@@ -17,7 +17,7 @@ Copyright (c) 2020 John Goerzen
 
  */
 
-use crate::analysis::ARecord;
+use crate::arecord::ARecord;
 use chrono::{offset::TimeZone, Date, NaiveDate, Utc};
 use plotters::prelude::*;
 use std::collections::HashMap;
