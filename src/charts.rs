@@ -66,11 +66,11 @@ pub fn write(
                     100f64 * masks.get(d).unwrap().newcaseavg / masksday0,
                 )
             }),
-            &BLUE,
+            &RED,
         ))
         .unwrap()
         .label("Masks")
-        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &BLUE));
+        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &RED));
 
     chart
         .draw_series(LineSeries::new(
@@ -80,11 +80,11 @@ pub fn write(
                     100f64 * nomasks.get(d).unwrap().newcaseavg / nomasksday0,
                 )
             }),
-            &RED,
+            &BLUE,
         ))
         .unwrap()
         .label("No Masks")
-        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &RED));
+        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &BLUE));
 
     chart
         .configure_series_labels()
