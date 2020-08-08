@@ -94,14 +94,12 @@ pub fn write(
         .unwrap();
 }
 
-pub fn writecounty(
+pub fn writecounties(
     bycounty: &HashMap<String, HashMap<NaiveDate, ARecord>>,
-    county: String,
+    counties: &Vec<&str>,
     datelist: &Vec<NaiveDate>,
 ) {
-    let filename: &str = &format!("{}.png", county).to_owned();
-    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
-    let data = bycounty.get(&county).unwrap();
+    let root = BitMapBackend::new("counties.png", (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
     let mut chart = ChartBuilder::on(&root)
@@ -109,7 +107,7 @@ pub fn writecounty(
         .y_label_area_size(50)
         .margin(5)
         .caption(
-            &format!("COVID-19 cases: {} County, Kansas", county),
+            "COVID-19 cases in Selected Counties, Kansas",
             ("sans-serif", 50.0).into_font(),
         )
         .build_ranged(
@@ -125,19 +123,26 @@ pub fn writecounty(
         .draw()
         .expect("draw");
 
-    let day0 = data.get(&datelist[0]).unwrap().newcaseavg;
+    let mut idx = 0;
 
-    chart
-        .draw_series(LineSeries::new(
-            datelist.iter().map(|d| {
-                (
-                    n2d(d),
-                    100f64 * data.get(d).unwrap().newcaseavg / day0,
-                )
-            }),
-            &RED,
-        ))
-        .unwrap();
+    for county in counties {
+        let data = bycounty.get(&String::from(*county)).unwrap();
+        let day0 = data.get(&datelist[0]).unwrap().newcaseavg;
+
+        chart
+            .draw_series(LineSeries::new(
+                datelist
+                    .iter()
+                    .map(|d| (n2d(d), 100f64 * data.get(d).unwrap().newcaseavg / day0)),
+                &Palette99::pick(idx),
+            ))
+            .unwrap()
+            .label(&String::from(*county))
+            .legend(move |(x, y)| {
+                Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &Palette99::pick(idx))
+            });
+        idx += 1;
+    }
 
     chart
         .configure_series_labels()

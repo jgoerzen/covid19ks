@@ -70,5 +70,9 @@ fn main() {
 
     let (masks, nomasks) = analysis::separate(&bycounty, &maskcounties, &datelist_full, 7);
     charts::write(&masks, &nomasks, &datelist_output);
-    charts::writecounty(&bycounty, String::from("Marion"), &datelist_output);
+    charts::writecounties(
+        &bycounty,
+        &vec!["Marion", "Sedgwick", "Harvey", "Saline"],
+        &datelist_output,
+    );
 }
