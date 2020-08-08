@@ -23,7 +23,7 @@ use std::ffi::OsString;
 
 mod analysis;
 mod charts;
-mod parser;
+mod nytparser;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -67,8 +67,8 @@ fn main() {
         .expect("need args")
         .into_string()
         .expect("conversion issue");
-    let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
-    let vr = parser::parse(&mut rdr);
+    let mut rdr = nytparser::parse_init_file(file_path).expect("Couldn't init parser");
+    let vr = nytparser::parse(&mut rdr);
     let filtered = vr.filter(|x| x.state == "Kansas");
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 

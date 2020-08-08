@@ -17,7 +17,7 @@ Copyright (c) 2019 John Goerzen
 
  */
 
-use crate::parser;
+use crate::nytparser;
 use chrono::naive::NaiveDate;
 use std::collections::HashMap;
 
@@ -125,7 +125,7 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
 }
 
 /// Separate by county
-pub fn parser_to_county<I: Iterator<Item = parser::Record>>(
+pub fn parser_to_county<I: Iterator<Item = nytparser::Record>>(
     input: I,
     datelist: &Vec<NaiveDate>,
     window: u32,
