@@ -35,7 +35,8 @@ fn main() {
     let file_path = get_first_arg().expect("need args").into_string().expect("conversion issue");
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);
-    for item in vr {
+    let filtered = vr.filter(|x| x.state == "Kansas");
+    for item in filtered {
         println!("{:?}", item);
     }
 }

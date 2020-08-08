@@ -19,12 +19,16 @@ Copyright (c) 2019 John Goerzen
 use csv;
 use std::error::Error;
 use std::fs::File;
-use serde::Deserialize;
+use serde::{de, Deserialize, Deserializer};
+use chrono;
+use chrono::naive::NaiveDate;
+use std::fmt::Display;
+use std::str::FromStr;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Record {
-    #[serde(rename = "Date")]
-    pub date: String,
+    #[serde(rename = "Date", deserialize_with = "date_from_str")]
+    pub date: NaiveDate,
     #[serde(rename = "County")]
     pub icounty: String,
     #[serde(rename = "State")]
@@ -35,6 +39,16 @@ pub struct Record {
     pub cases: i64,
     #[serde(rename = "Deaths")]
     pub deaths: i64,
+}
+
+fn date_from_str<'de, S, D>(deserializer: D) -> Result<S, D::Error>
+where
+    S: FromStr,      // Required for S::from_str...
+    S::Err: Display, // Required for .map_err(de::Error::custom)
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    S::from_str(&s).map_err(de::Error::custom)
 }
 
 /* The input data is a bunch of 1-column notes at the end, citation details, etc.

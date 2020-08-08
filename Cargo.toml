@@ -1,5 +1,5 @@
 [package]
-name = "cdcvis"
+name = "covid19ks"
 version = "0.1.0"
 authors = ["John Goerzen <jgoerzen@complete.org>"]
 edition = "2018"
@@ -8,3 +8,4 @@ edition = "2018"
 csv = "1.1"
 serde = { version = "1", features = ["derive"] }
 rctree = "0.3.3"
+chrono = "0.4"

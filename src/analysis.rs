@@ -21,3 +21,7 @@ use crate::parser;
 use rctree::Node;
 use std::collections::HashMap;
 
+#[derive(Debug, PartialEq, Clone)]
+pub struct ARecord {
+   pub foo: String,
+}
