@@ -1,12 +1,25 @@
-# CDC death data visualization
+# COVID-19 in Kansas: Masks vs. No-Masks
 
-This is used to create Sankey diagrams of data of causes of death as obtained from the [CDC Wonder Data Request](https://wonder.cdc.gov/controller/datarequest/D76) system.  It is a Rust program that collates and filters the data to make it presentable.  The parameters to the coalescepct function in main.rs are particularly relevant for filtering.
+In 2020, some counties in Kansas adopted a mask requirement while others didn't.  The Kansas Department of Health and Environment published a [chart](kdhe-chart.pdf) illustrating COVID-19 changes in masks vs. without counties.
 
-I have included an example png of the output in this directory.  A cut-and-pastable description of its generation using the code in this repository follows:
+Some people questioned whether this chart was misleading due to its use of different Y-axis.  This repository produces a similar chart with a unified Y-axis and shows that the result was not misleading.
 
-The data comes from [CDC Wonder Data Request](https://wonder.cdc.gov/controller/datarequest/D76).  Parameters are as follows: ten-year age groups: 35-44 and 45-54; year: 2016; Group by: ICD chapter, then ICD sub-chapter, then cause of death, with "export results" checked.  This particular age group was selected because it tends to exclude disproportionate causes of death at the very young or very old edge of the spectrum; "old age" is not a listed cause of death.  This, therefore, tends to show "what kills people early."  It should be noted that this shows only the immediate cuase of death; in particular, smoking will not show up here as a direct cause of death because it manifests itself as things like lung cancer.
+The source data is us-counties.csv from the [covid-19-data set](https://github.com/nytimes/covid-19-data).  It is passed as the one parameter to the executable in this repository.  [This particular version](https://github.com/nytimes/covid-19-data/blob/42590181052a7591385562a59fdd545bd478f763/us-counties.csv) was used for the generation of the graph here, so you can verify these results for yourself.
 
-It was then fed through my [cdcvis](https://github.com/jgoerzen/cdcvis) program.  This program takes the TSV file from CDC Wonder, parses it, filters it down to combine the myriad sub-categories into "Other" so that the resulting chart is manageable, and then outputs data in a form that Sankeymatic can handle.  I wrote it as an exercise as part of learning Rust.
+# Copyright
 
-The output from cdcvis is then sent to [Sankeymatic Build](http://sankeymatic.com/build/).
+Copyright (c) 2019-2020 John Goerzen
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
