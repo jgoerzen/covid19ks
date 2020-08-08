@@ -74,7 +74,7 @@ pub fn setnewcase(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate
     }
 }
 
-/// Populate the moving average in the hashmap
+/// Populate the moving average in the hashmap.  Must be done after setnewcase
 pub fn setnewcaseavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
     for item in datelist {
         // First, find the previous cases.
@@ -91,4 +91,21 @@ pub fn setnewcaseavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveD
         hm.entry(*item).and_modify(|rec| {rec.newcaseavg = avg});
 
     }
+}
+
+/// Separate by county
+pub fn parser_to_county<I: Iterator<Item = parser::Record>>(input: I, datelist: &Vec<NaiveDate>, window: u32) -> HashMap<String, HashMap<NaiveDate, ARecord>> {
+    let mut hm = HashMap::new();
+    let templatehm = newhashmap(datelist);
+    for item in input {
+        hm.entry(item.county.clone()).or_insert(templatehm.clone()).entry(item.date).and_modify(|rec| {rec.totalcases = item.cases});
+    }
+
+    for (_, val) in &mut hm {
+        setnewcase(val, datelist);
+        setnewcaseavg(val, datelist, window);
+    }
+
+    hm
+       
 }

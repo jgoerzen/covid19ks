@@ -36,7 +36,13 @@ fn get_first_arg() -> Result<OsString, Box<Error>> {
 fn main() {
     let first_date = NaiveDate::from_ymd(2020, 7, 12);
     let last_date = NaiveDate::from_ymd(2020, 8, 3);
-    let maskcounties = vec!["Foo"];
+
+    // Source: https://www.kansas.com/news/politics-government/article244091222.html
+    let maskcounties = vec!["Jewell", "Mitchell", "Saline", "Dickinson", "Atchison", "Douglas", "Johnson",
+                            "Wyandotte", "Franklin", "Allen", "Bourbon", "Crawford", "Montgomery", "Sedgwick"];
+    let datelist_output = analysis::alldates(&first_date, &last_date);
+    let datelist_full = analysis::alldates(&NaiveDate::from_ymd(2020, 1, 21), &NaiveDate::from_ymd(2020, 8, 6));
+
     let file_path = get_first_arg().expect("need args").into_string().expect("conversion issue");
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);

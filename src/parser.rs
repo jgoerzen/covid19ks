@@ -30,7 +30,7 @@ pub struct Record {
     #[serde(rename = "Date", deserialize_with = "date_from_str")]
     pub date: NaiveDate,
     #[serde(rename = "County")]
-    pub icounty: String,
+    pub county: String,
     #[serde(rename = "State")]
     pub state: String,
     #[serde(rename = "FIPS")]
