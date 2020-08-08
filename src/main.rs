@@ -25,6 +25,7 @@ mod analysis;
 mod charts;
 mod parser;
 
+
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
 fn get_first_arg() -> Result<OsString, Box<dyn Error>> {
@@ -69,7 +70,16 @@ fn main() {
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
     let (masks, nomasks) = analysis::separate(&bycounty, &maskcounties, &datelist_full, 7);
-    charts::write(&masks, &nomasks, &datelist_output);
+    charts::write("main.png", analysis::ARecord::getnewcaseavg,
+                  "COVID-19: Masks vs no-mask counties, KS",
+                  "7-day moving average of new cases, % relative to July 12",
+                  60f64, 130f64,
+                  &masks, &nomasks, &datelist_output);
+    charts::write("deaths.png", analysis::ARecord::getnewdeathavg,
+                  "COVID-19 deaths: Mask vs no-mask",
+                  "7-day moving average of new deaths, % relative to July 12",
+                  20f64, 400f64,
+                  &masks, &nomasks, &datelist_output);
     charts::writecounties(
         &bycounty,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],

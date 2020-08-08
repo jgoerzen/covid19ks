@@ -26,12 +26,18 @@ fn n2d(naive: &NaiveDate) -> Date<Utc> {
     Utc.from_utc_date(naive)
 }
 
-pub fn write(
+pub fn write<F: Fn(&ARecord) -> f64>(
+    filename: &str,
+    func: F,
+    title: &str,
+    yaxis: &str,
+    ymin: f64,
+    ymax: f64,
     masks: &HashMap<NaiveDate, ARecord>,
     nomasks: &HashMap<NaiveDate, ARecord>,
     datelist: &Vec<NaiveDate>,
 ) {
-    let root = BitMapBackend::new("main.png", (1024, 768)).into_drawing_area();
+    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
     let mut chart = ChartBuilder::on(&root)
@@ -39,31 +45,31 @@ pub fn write(
         .y_label_area_size(50)
         .margin(5)
         .caption(
-            "COVID-19 cases: Mask vs. no-mask counties, KS",
+            title,
             ("sans-serif", 50.0).into_font(),
         )
         .build_ranged(
             n2d(&datelist[0])..n2d(datelist.last().unwrap()),
-            60f64..130f64,
+            ymin..ymax,
         )
         .unwrap();
 
     chart
         .configure_mesh()
         .line_style_2(&WHITE)
-        .y_desc("7-day moving average of cases, % relative to July 12")
+        .y_desc(yaxis)
         .draw()
         .expect("draw");
 
-    let masksday0 = masks.get(&datelist[0]).unwrap().newcaseavg;
-    let nomasksday0 = nomasks.get(&datelist[0]).unwrap().newcaseavg;
+    let masksday0 = func(masks.get(&datelist[0]).unwrap());
+    let nomasksday0 = func(nomasks.get(&datelist[0]).unwrap());
 
     chart
         .draw_series(LineSeries::new(
             datelist.iter().map(|d| {
                 (
                     n2d(d),
-                    100f64 * masks.get(d).unwrap().newcaseavg / masksday0,
+                    100f64 * func(masks.get(d).unwrap()) / masksday0,
                 )
             }),
             &RED,
@@ -77,7 +83,7 @@ pub fn write(
             datelist.iter().map(|d| {
                 (
                     n2d(d),
-                    100f64 * nomasks.get(d).unwrap().newcaseavg / nomasksday0,
+                    100f64 * func(nomasks.get(d).unwrap()) / nomasksday0,
                 )
             }),
             &BLUE,
@@ -119,7 +125,7 @@ pub fn writecounties(
     chart
         .configure_mesh()
         .line_style_2(&WHITE)
-        .y_desc("7-day moving average of cases, % relative to July 12")
+        .y_desc("7-day moving average of new cases, % relative to July 12")
         .draw()
         .expect("draw");
 

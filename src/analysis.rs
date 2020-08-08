@@ -26,6 +26,9 @@ pub struct ARecord {
     pub totalcases: i32,
     pub newcases: i32,
     pub newcaseavg: f64,
+    pub totaldeaths: i32,
+    pub newdeaths: i32,
+    pub newdeathavg: f64,
 }
 
 impl Default for ARecord {
@@ -34,7 +37,20 @@ impl Default for ARecord {
             totalcases: 0,
             newcases: 0,
             newcaseavg: 0.0,
+            totaldeaths: 0,
+            newdeaths: 0,
+            newdeathavg: 0.0
         }
+    }
+}
+
+impl ARecord {
+    pub fn getnewcaseavg(&self) -> f64 {
+        self.newcaseavg
+    }
+
+    pub fn getnewdeathavg(&self) -> f64 {
+        self.newdeathavg
     }
 }
 
@@ -58,40 +74,46 @@ pub fn newhashmap(datelist: &Vec<NaiveDate>) -> HashMap<NaiveDate, ARecord> {
     retval
 }
 
-/// Populate the new cases in the hashmap
-pub fn setnewcase(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
+/// Populate the new cases and deaths in the hashmap
+pub fn setnew(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
     for item in datelist {
         // Find the previous cases
         let mut previouscases = 0;
+        let mut previousdeaths = 0;
         let mut prevdate = item.pred();
         while prevdate >= datelist[0] {
             if let Some(rec) = hm.get(&prevdate) {
                 previouscases = rec.totalcases;
+                previousdeaths = rec.totaldeaths;
                 break;
             }
             prevdate = prevdate.pred();
         }
 
         hm.entry(*item)
-            .and_modify(|rec| rec.newcases = rec.totalcases - previouscases);
+          .and_modify(|rec| { rec.newcases = rec.totalcases - previouscases; rec.newdeaths = rec.totaldeaths - previousdeaths });
     }
 }
 
-/// Populate the moving average in the hashmap.  Must be done after setnewcase
-pub fn setnewcaseavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
+/// Populate the moving average in the hashmap.  Must be done after setnew
+pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
     for item in datelist {
         // First, find the previous cases.
-        let mut accum = 0;
+        let mut caseaccum = 0;
+        let mut deathaccum = 0;
         let mut thisdate = item.clone();
         let mut counter = window;
         while counter > 0 {
-            accum += hm.get(&thisdate).map_or(0, |rec| rec.newcases);
+            let (newcases, newdeaths) = hm.get(&thisdate).map_or((0, 0), |rec| (rec.newcases, rec.newdeaths));
+            caseaccum += newcases;
+            deathaccum += newdeaths;
             thisdate = thisdate.pred();
             counter -= 1;
         }
 
-        let avg = f64::from(accum) / f64::from(window);
-        hm.entry(*item).and_modify(|rec| rec.newcaseavg = avg);
+        let caseavg = f64::from(caseaccum) / f64::from(window);
+        let deathavg = f64::from(deathaccum) / f64::from(window);
+        hm.entry(*item).and_modify(|rec| { rec.newcaseavg = caseavg; rec.newdeathavg = deathavg });
     }
 }
 
@@ -107,12 +129,12 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(
         hm.entry(item.county.clone())
             .or_insert(templatehm.clone())
             .entry(item.date)
-            .and_modify(|rec| rec.totalcases = item.cases);
+            .and_modify(|rec| { rec.totalcases = item.cases; rec.totaldeaths = item.deaths });
     }
 
     for (_key, val) in &mut hm {
-        setnewcase(val, datelist);
-        setnewcaseavg(val, datelist, window);
+        setnew(val, datelist);
+        setnewavg(val, datelist, window);
     }
 
     hm
@@ -137,15 +159,15 @@ pub fn separate(
         for (date, countyrec) in countyhm {
             updatehm
                 .entry(*date)
-                .and_modify(|rec| rec.totalcases += countyrec.totalcases);
+                .and_modify(|rec| { rec.totalcases += countyrec.totalcases; rec.totaldeaths += countyrec.totaldeaths });
         }
     }
 
-    setnewcase(&mut maskshm, datelist);
-    setnewcaseavg(&mut maskshm, datelist, window);
+    setnew(&mut maskshm, datelist);
+    setnewavg(&mut maskshm, datelist, window);
 
-    setnewcase(&mut nomaskshm, datelist);
-    setnewcaseavg(&mut nomaskshm, datelist, window);
+    setnew(&mut nomaskshm, datelist);
+    setnewavg(&mut nomaskshm, datelist, window);
 
     (maskshm, nomaskshm)
 }
