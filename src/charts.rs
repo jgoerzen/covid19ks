@@ -34,18 +34,23 @@ pub fn write(masks: &HashMap<NaiveDate, ARecord>, nomasks: &HashMap<NaiveDate, A
         .x_label_area_size(40)
         .y_label_area_size(40)
         .caption("Caption 1", ("sans-serif", 50.0).into_font())
-        .build_ranged(n2d(&datelist[0])..n2d(datelist.last().unwrap()), 100f64..400f64).unwrap();
+        .build_ranged(n2d(&datelist[0])..n2d(datelist.last().unwrap()), 60f64..130f64).unwrap();
 
     chart.configure_mesh().line_style_2(&WHITE).draw().expect("draw");
+
+
+    let masksday0 = masks.get(&datelist[0]).unwrap().newcaseavg;
+    let nomasksday0 = nomasks.get(&datelist[0]).unwrap().newcaseavg;
+
     chart.draw_series(LineSeries::new(
-        datelist.iter().map(|d| (n2d(d), masks.get(d).unwrap().newcaseavg)),
+        datelist.iter().map(|d| (n2d(d), 100f64 * masks.get(d).unwrap().newcaseavg / masksday0)),
             &BLUE
     )).unwrap()
         .label("Masks");
 
 
     chart.draw_series(LineSeries::new(
-        datelist.iter().map(|d| (n2d(d), nomasks.get(d).unwrap().newcaseavg)),
+        datelist.iter().map(|d| (n2d(d), 100f64 * nomasks.get(d).unwrap().newcaseavg / nomasksday0)),
             &RED
     )).unwrap()
         .label("Masks");
