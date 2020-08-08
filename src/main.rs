@@ -22,7 +22,6 @@ use std::error::Error;
 
 mod parser;
 mod analysis;
-mod sankeygen;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -36,23 +35,8 @@ fn main() {
     let file_path = get_first_arg().expect("need args").into_string().expect("conversion issue");
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);
-    let mut t = analysis::mktree(vr);
-    analysis::treecalcs(&mut t);
-    analysis::coalescepct(&mut t, 0.03, 0.5);
-    /* for debugging
-    let mut level = 0;
-    for item in t.traverse() {
-        match item {
-            rctree::NodeEdge::Start(x) => {
-                level += 1;
-                println!("{}{:?}", " ".repeat(level * 5), x.borrow()); }
-            _ => { level -= 1; },
-        }
-    }
-    println!("Titles OK: {}", analysis::aretitlesok(&t));
-    */
-    for item in sankeygen::sankeymatic(&t) {
-        println!("{}", item);
+    for item in vr {
+        println!("{:?}", item);
     }
 }
 
