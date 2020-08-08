@@ -39,7 +39,7 @@ impl Default for ARecord {
             newcaseavg: 0.0,
             totaldeaths: 0,
             newdeaths: 0,
-            newdeathavg: 0.0
+            newdeathavg: 0.0,
         }
     }
 }
@@ -90,8 +90,10 @@ pub fn setnew(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
             prevdate = prevdate.pred();
         }
 
-        hm.entry(*item)
-          .and_modify(|rec| { rec.newcases = rec.totalcases - previouscases; rec.newdeaths = rec.totaldeaths - previousdeaths });
+        hm.entry(*item).and_modify(|rec| {
+            rec.newcases = rec.totalcases - previouscases;
+            rec.newdeaths = rec.totaldeaths - previousdeaths
+        });
     }
 }
 
@@ -104,7 +106,9 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
         let mut thisdate = item.clone();
         let mut counter = window;
         while counter > 0 {
-            let (newcases, newdeaths) = hm.get(&thisdate).map_or((0, 0), |rec| (rec.newcases, rec.newdeaths));
+            let (newcases, newdeaths) = hm
+                .get(&thisdate)
+                .map_or((0, 0), |rec| (rec.newcases, rec.newdeaths));
             caseaccum += newcases;
             deathaccum += newdeaths;
             thisdate = thisdate.pred();
@@ -113,7 +117,10 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
 
         let caseavg = f64::from(caseaccum) / f64::from(window);
         let deathavg = f64::from(deathaccum) / f64::from(window);
-        hm.entry(*item).and_modify(|rec| { rec.newcaseavg = caseavg; rec.newdeathavg = deathavg });
+        hm.entry(*item).and_modify(|rec| {
+            rec.newcaseavg = caseavg;
+            rec.newdeathavg = deathavg
+        });
     }
 }
 
@@ -129,7 +136,10 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(
         hm.entry(item.county.clone())
             .or_insert(templatehm.clone())
             .entry(item.date)
-            .and_modify(|rec| { rec.totalcases = item.cases; rec.totaldeaths = item.deaths });
+            .and_modify(|rec| {
+                rec.totalcases = item.cases;
+                rec.totaldeaths = item.deaths
+            });
     }
 
     for (_key, val) in &mut hm {
@@ -157,9 +167,10 @@ pub fn separate(
             &mut nomaskshm
         };
         for (date, countyrec) in countyhm {
-            updatehm
-                .entry(*date)
-                .and_modify(|rec| { rec.totalcases += countyrec.totalcases; rec.totaldeaths += countyrec.totaldeaths });
+            updatehm.entry(*date).and_modify(|rec| {
+                rec.totalcases += countyrec.totalcases;
+                rec.totaldeaths += countyrec.totaldeaths
+            });
         }
     }
 
