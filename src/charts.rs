@@ -112,7 +112,7 @@ pub fn writecounties(
         )
         .build_ranged(
             n2d(&datelist[0])..n2d(datelist.last().unwrap()),
-            60f64..130f64,
+            20f64..200f64,
         )
         .unwrap();
 

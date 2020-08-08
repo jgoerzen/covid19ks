@@ -72,7 +72,7 @@ fn main() {
     charts::write(&masks, &nomasks, &datelist_output);
     charts::writecounties(
         &bycounty,
-        &vec!["Marion", "Sedgwick", "Harvey", "Saline"],
+        &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &datelist_output,
     );
 }
