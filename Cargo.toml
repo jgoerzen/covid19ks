@@ -9,5 +9,4 @@ csv = "1.1"
 serde = { version = "1", features = ["derive"] }
 rctree = "0.3.3"
 chrono = "0.4"
-charts = "0.3"
 plotters = {  version = "0.2.15", features = ["chrono"] }

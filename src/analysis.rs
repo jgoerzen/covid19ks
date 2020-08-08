@@ -19,7 +19,6 @@ Copyright (c) 2019 John Goerzen
 
 use crate::parser;
 use chrono::naive::NaiveDate;
-use rctree::Node;
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone)]

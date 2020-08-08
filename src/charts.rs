@@ -39,7 +39,7 @@ pub fn write(
         .y_label_area_size(50)
         .margin(5)
         .caption(
-            "COVID-19 cases: Mask vs. no-mask counties",
+            "COVID-19 cases: Mask vs. no-mask counties, KS",
             ("sans-serif", 50.0).into_font(),
         )
         .build_ranged(
@@ -51,7 +51,7 @@ pub fn write(
     chart
         .configure_mesh()
         .line_style_2(&WHITE)
-        .y_desc("7-day moving average of cases, % change relative to July 12")
+        .y_desc("7-day moving average of cases, % relative to July 12")
         .draw()
         .expect("draw");
 
@@ -119,7 +119,7 @@ pub fn writecounties(
     chart
         .configure_mesh()
         .line_style_2(&WHITE)
-        .y_desc("7-day moving average of cases, % change relative to July 12")
+        .y_desc("7-day moving average of cases, % relative to July 12")
         .draw()
         .expect("draw");
 

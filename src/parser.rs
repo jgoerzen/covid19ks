@@ -61,7 +61,7 @@ pub fn rec_to_struct(record: csv::StringRecord) -> Option<Record> {
     return None;
 }
 
-pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<Error>> {
+pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<dyn Error>> {
     let file = File::open(filename)?;
     let rdr = csv::ReaderBuilder::new()
         .delimiter(b',')
