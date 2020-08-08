@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2019 John Goerzen
+Copyright (c) 2019-2020-2020 John Goerzen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ use chrono::naive::NaiveDate;
 
 mod parser;
 mod analysis;
+mod charts;
 
 
 /// Returns the first positional argument sent to this process. If there are no
@@ -50,8 +51,5 @@ fn main() {
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
     let (masks, nomasks) = analysis::separate(bycounty, &maskcounties, &datelist_full, 7);
-    for item in datelist_full {
-        println!("{}, {:?}, {:?}", item, masks.get(&item).unwrap(), nomasks.get(&item).unwrap());
-    }
+    charts::write(&masks, &nomasks, &datelist_output);
 }
-
