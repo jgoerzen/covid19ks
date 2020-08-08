@@ -93,3 +93,56 @@ pub fn write(
         .draw()
         .unwrap();
 }
+
+pub fn writecounty(
+    bycounty: &HashMap<String, HashMap<NaiveDate, ARecord>>,
+    county: String,
+    datelist: &Vec<NaiveDate>,
+) {
+    let filename: &str = &format!("{}.png", county).to_owned();
+    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
+    let data = bycounty.get(&county).unwrap();
+    root.fill(&WHITE).unwrap();
+
+    let mut chart = ChartBuilder::on(&root)
+        .x_label_area_size(40)
+        .y_label_area_size(50)
+        .margin(5)
+        .caption(
+            &format!("COVID-19 cases: {} County, Kansas", county),
+            ("sans-serif", 50.0).into_font(),
+        )
+        .build_ranged(
+            n2d(&datelist[0])..n2d(datelist.last().unwrap()),
+            60f64..130f64,
+        )
+        .unwrap();
+
+    chart
+        .configure_mesh()
+        .line_style_2(&WHITE)
+        .y_desc("7-day moving average of cases, % change relative to July 12")
+        .draw()
+        .expect("draw");
+
+    let day0 = data.get(&datelist[0]).unwrap().newcaseavg;
+
+    chart
+        .draw_series(LineSeries::new(
+            datelist.iter().map(|d| {
+                (
+                    n2d(d),
+                    100f64 * data.get(d).unwrap().newcaseavg / day0,
+                )
+            }),
+            &RED,
+        ))
+        .unwrap();
+
+    chart
+        .configure_series_labels()
+        .background_style(&WHITE.mix(0.8))
+        .border_style(&BLACK)
+        .draw()
+        .unwrap();
+}
