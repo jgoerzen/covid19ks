@@ -18,10 +18,9 @@ Copyright (c) 2019 John Goerzen
  */
 
 use crate::parser;
+use chrono::naive::NaiveDate;
 use rctree::Node;
 use std::collections::HashMap;
-use chrono::naive::NaiveDate;
-
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ARecord {
@@ -32,7 +31,11 @@ pub struct ARecord {
 
 impl Default for ARecord {
     fn default() -> ARecord {
-        ARecord {totalcases: 0, newcases: 0, newcaseavg: 0.0}
+        ARecord {
+            totalcases: 0,
+            newcases: 0,
+            newcaseavg: 0.0,
+        }
     }
 }
 
@@ -70,7 +73,8 @@ pub fn setnewcase(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate
             prevdate = prevdate.pred();
         }
 
-        hm.entry(*item).and_modify(|rec| {rec.newcases = rec.totalcases - previouscases});
+        hm.entry(*item)
+            .and_modify(|rec| rec.newcases = rec.totalcases - previouscases);
     }
 }
 
@@ -88,17 +92,23 @@ pub fn setnewcaseavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveD
         }
 
         let avg = f64::from(accum) / f64::from(window);
-        hm.entry(*item).and_modify(|rec| {rec.newcaseavg = avg});
-
+        hm.entry(*item).and_modify(|rec| rec.newcaseavg = avg);
     }
 }
 
 /// Separate by county
-pub fn parser_to_county<I: Iterator<Item = parser::Record>>(input: I, datelist: &Vec<NaiveDate>, window: u32) -> HashMap<String, HashMap<NaiveDate, ARecord>> {
+pub fn parser_to_county<I: Iterator<Item = parser::Record>>(
+    input: I,
+    datelist: &Vec<NaiveDate>,
+    window: u32,
+) -> HashMap<String, HashMap<NaiveDate, ARecord>> {
     let mut hm = HashMap::new();
     let templatehm = newhashmap(datelist);
     for item in input {
-        hm.entry(item.county.clone()).or_insert(templatehm.clone()).entry(item.date).and_modify(|rec| {rec.totalcases = item.cases});
+        hm.entry(item.county.clone())
+            .or_insert(templatehm.clone())
+            .entry(item.date)
+            .and_modify(|rec| rec.totalcases = item.cases);
     }
 
     for (_key, val) in &mut hm {
@@ -107,19 +117,28 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(input: I, datelist: 
     }
 
     hm
-       
 }
 
 /// Separate by mask
-pub fn separate(input: HashMap<String, HashMap<NaiveDate, ARecord>>, maskcounties: &Vec<&str>,
-                                                    datelist: &Vec<NaiveDate>, window: u32) -> (HashMap<NaiveDate, ARecord>, HashMap<NaiveDate, ARecord>) {
+pub fn separate(
+    input: HashMap<String, HashMap<NaiveDate, ARecord>>,
+    maskcounties: &Vec<&str>,
+    datelist: &Vec<NaiveDate>,
+    window: u32,
+) -> (HashMap<NaiveDate, ARecord>, HashMap<NaiveDate, ARecord>) {
     let mut maskshm = newhashmap(datelist);
     let mut nomaskshm = newhashmap(datelist);
 
     for (county, countyhm) in input {
-        let updatehm = if maskcounties.contains(&county.as_str()) { &mut maskshm } else { &mut nomaskshm };
+        let updatehm = if maskcounties.contains(&county.as_str()) {
+            &mut maskshm
+        } else {
+            &mut nomaskshm
+        };
         for (date, countyrec) in countyhm {
-            updatehm.entry(date).and_modify(|rec| { rec.totalcases += countyrec.totalcases });
+            updatehm
+                .entry(date)
+                .and_modify(|rec| rec.totalcases += countyrec.totalcases);
         }
     }
 

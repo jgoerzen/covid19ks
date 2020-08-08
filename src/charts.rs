@@ -18,42 +18,78 @@ Copyright (c) 2020 John Goerzen
  */
 
 use crate::analysis::ARecord;
-use std::collections::HashMap;
-use chrono::{Date, Utc, NaiveDate, offset::TimeZone};
+use chrono::{offset::TimeZone, Date, NaiveDate, Utc};
 use plotters::prelude::*;
+use std::collections::HashMap;
 
 fn n2d(naive: &NaiveDate) -> Date<Utc> {
     Utc.from_utc_date(naive)
 }
 
-pub fn write(masks: &HashMap<NaiveDate, ARecord>, nomasks: &HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
-    let root = BitMapBackend::new("main.png", (1024,768)).into_drawing_area();
+pub fn write(
+    masks: &HashMap<NaiveDate, ARecord>,
+    nomasks: &HashMap<NaiveDate, ARecord>,
+    datelist: &Vec<NaiveDate>,
+) {
+    let root = BitMapBackend::new("main.png", (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
     let mut chart = ChartBuilder::on(&root)
         .x_label_area_size(40)
-        .y_label_area_size(40)
-        .caption("Caption 1", ("sans-serif", 50.0).into_font())
-        .build_ranged(n2d(&datelist[0])..n2d(datelist.last().unwrap()), 60f64..130f64).unwrap();
+        .y_label_area_size(50)
+        .margin(5)
+        .caption(
+            "COVID-19 cases: Mask vs. no-mask counties",
+            ("sans-serif", 50.0).into_font(),
+        )
+        .build_ranged(
+            n2d(&datelist[0])..n2d(datelist.last().unwrap()),
+            60f64..130f64,
+        )
+        .unwrap();
 
-    chart.configure_mesh().line_style_2(&WHITE).draw().expect("draw");
-
+    chart
+        .configure_mesh()
+        .line_style_2(&WHITE)
+        .y_desc("7-day moving average of cases, % change relative to July 12")
+        .draw()
+        .expect("draw");
 
     let masksday0 = masks.get(&datelist[0]).unwrap().newcaseavg;
     let nomasksday0 = nomasks.get(&datelist[0]).unwrap().newcaseavg;
 
-    chart.draw_series(LineSeries::new(
-        datelist.iter().map(|d| (n2d(d), 100f64 * masks.get(d).unwrap().newcaseavg / masksday0)),
-            &BLUE
-    )).unwrap()
-        .label("Masks");
+    chart
+        .draw_series(LineSeries::new(
+            datelist.iter().map(|d| {
+                (
+                    n2d(d),
+                    100f64 * masks.get(d).unwrap().newcaseavg / masksday0,
+                )
+            }),
+            &BLUE,
+        ))
+        .unwrap()
+        .label("Masks")
+        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &BLUE));
 
+    chart
+        .draw_series(LineSeries::new(
+            datelist.iter().map(|d| {
+                (
+                    n2d(d),
+                    100f64 * nomasks.get(d).unwrap().newcaseavg / nomasksday0,
+                )
+            }),
+            &RED,
+        ))
+        .unwrap()
+        .label("No Masks")
+        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &RED));
 
-    chart.draw_series(LineSeries::new(
-        datelist.iter().map(|d| (n2d(d), 100f64 * nomasks.get(d).unwrap().newcaseavg / nomasksday0)),
-            &RED
-    )).unwrap()
-        .label("Masks");
-
-
+    chart
+        .configure_series_labels()
+        .background_style(&WHITE.mix(0.8))
+        .border_style(&BLACK)
+        .draw()
+        .unwrap();
 }

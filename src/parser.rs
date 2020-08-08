@@ -16,13 +16,13 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use csv;
-use std::error::Error;
-use std::fs::File;
-use serde::{de, Deserialize, Deserializer};
 use chrono;
 use chrono::naive::NaiveDate;
+use csv;
+use serde::{de, Deserialize, Deserializer};
+use std::error::Error;
 use std::fmt::Display;
+use std::fs::File;
 use std::str::FromStr;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -70,22 +70,26 @@ pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<Error>
     Ok(rdr)
 }
 
-/* 
+/*
 
 This type signature with hints from https://stackoverflow.com/questions/27535289/what-is-the-correct-way-to-return-an-iterator-or-any-other-trait
 */
-pub fn parse_records<'a, A: std::io::Read>(byteiter: csv::ByteRecordsIter<'a, A>) -> impl Iterator<Item = csv::StringRecord> + 'a {
+pub fn parse_records<'a, A: std::io::Read>(
+    byteiter: csv::ByteRecordsIter<'a, A>,
+) -> impl Iterator<Item = csv::StringRecord> + 'a {
     byteiter.map(|x| csv::StringRecord::from_byte_record_lossy(x.expect("Error in parse_records")))
 }
 
-
-pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(striter: A) -> impl Iterator<Item = Record> {
+pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
+    striter: A,
+) -> impl Iterator<Item = Record> {
     striter.filter_map(|x| rec_to_struct(x))
 }
 
 /* Will panic on parse error. */
-pub fn parse<'a, A: std::io::Read>(rdr: &'a mut csv::Reader<A>) -> impl Iterator<Item = Record> + 'a {
+pub fn parse<'a, A: std::io::Read>(
+    rdr: &'a mut csv::Reader<A>,
+) -> impl Iterator<Item = Record> + 'a {
     let recs = parse_records(rdr.byte_records());
     parse_to_final(recs)
 }
-

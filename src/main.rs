@@ -16,15 +16,14 @@ Copyright (c) 2019-2020-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use std::env;
-use std::ffi::OsString;
-use std::error::Error;
 use chrono::naive::NaiveDate;
+use std::env;
+use std::error::Error;
+use std::ffi::OsString;
 
-mod parser;
 mod analysis;
 mod charts;
-
+mod parser;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -39,12 +38,31 @@ fn main() {
     let last_date = NaiveDate::from_ymd(2020, 8, 3);
 
     // Source: https://www.kansas.com/news/politics-government/article244091222.html
-    let maskcounties = vec!["Jewell", "Mitchell", "Saline", "Dickinson", "Atchison", "Douglas", "Johnson",
-                            "Wyandotte", "Franklin", "Allen", "Bourbon", "Crawford", "Montgomery", "Sedgwick"];
+    let maskcounties = vec![
+        "Jewell",
+        "Mitchell",
+        "Saline",
+        "Dickinson",
+        "Atchison",
+        "Douglas",
+        "Johnson",
+        "Wyandotte",
+        "Franklin",
+        "Allen",
+        "Bourbon",
+        "Crawford",
+        "Montgomery",
+    ];
     let datelist_output = analysis::alldates(&first_date, &last_date);
-    let datelist_full = analysis::alldates(&NaiveDate::from_ymd(2020, 1, 21), &NaiveDate::from_ymd(2020, 8, 6));
+    let datelist_full = analysis::alldates(
+        &NaiveDate::from_ymd(2020, 1, 21),
+        &NaiveDate::from_ymd(2020, 8, 6),
+    );
 
-    let file_path = get_first_arg().expect("need args").into_string().expect("conversion issue");
+    let file_path = get_first_arg()
+        .expect("need args")
+        .into_string()
+        .expect("conversion issue");
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);
     let filtered = vr.filter(|x| x.state == "Kansas");
