@@ -47,11 +47,15 @@ pub fn setnew(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
         // Find the previous cases
         let mut previouscases = 0;
         let mut previousdeaths = 0;
+        let mut previousrecovered = 0;
+        let mut previousactive = 0;
         let mut prevdate = item.pred();
         while prevdate >= datelist[0] {
             if let Some(rec) = hm.get(&prevdate) {
                 previouscases = rec.totalcases;
                 previousdeaths = rec.totaldeaths;
+                previousrecovered = rec.totalrecovered;
+                previousactive = rec.totalactive;
                 break;
             }
             prevdate = prevdate.pred();
@@ -59,7 +63,9 @@ pub fn setnew(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
 
         hm.entry(*item).and_modify(|rec| {
             rec.newcases = rec.totalcases - previouscases;
-            rec.newdeaths = rec.totaldeaths - previousdeaths
+            rec.newdeaths = rec.totaldeaths - previousdeaths;
+            rec.chgrecovered = rec.totalrecovered - previousrecovered;
+            rec.chgactive = rec.totalactive - previousactive;
         });
     }
 }
@@ -70,23 +76,31 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
         // First, find the previous cases.
         let mut caseaccum = 0;
         let mut deathaccum = 0;
+        let mut recoveredaccum = 0;
+        let mut activeaccum = 0;
         let mut thisdate = item.clone();
         let mut counter = window;
         while counter > 0 {
-            let (newcases, newdeaths) = hm
+            let (newcases, newdeaths, newrecovered, newactive) = hm
                 .get(&thisdate)
-                .map_or((0, 0), |rec| (rec.newcases, rec.newdeaths));
+                .map_or((0, 0, 0, 0), |rec| (rec.newcases, rec.newdeaths, rec.chgrecovered, rec.chgactive));
             caseaccum += newcases;
             deathaccum += newdeaths;
+            recoveredaccum += newrecovered;
+            activeaccum += newactive;
             thisdate = thisdate.pred();
             counter -= 1;
         }
 
         let caseavg = f64::from(caseaccum) / f64::from(window);
         let deathavg = f64::from(deathaccum) / f64::from(window);
+        let recoveredavg = f64::from(recoveredaccum) / f64::from(window);
+        let activeavg = f64::from(activeaccum) / f64::from(window);
         hm.entry(*item).and_modify(|rec| {
             rec.newcaseavg = caseavg;
-            rec.newdeathavg = deathavg
+            rec.newdeathavg = deathavg;
+            rec.chgrecoveredavg = recoveredavg;
+            rec.chgactiveavg = activeavg;
         });
     }
 }
