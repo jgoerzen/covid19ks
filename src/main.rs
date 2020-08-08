@@ -38,7 +38,7 @@ fn main() {
     let first_date = NaiveDate::from_ymd(2020, 7, 12);
     let last_date = NaiveDate::from_ymd(2020, 8, 3);
 
-    let data_first_date = NaiveDate::from_ymd(2020, 1, 21);
+    let data_first_date = NaiveDate::from_ymd(2020, 5, 29);
     let data_last_date = NaiveDate::from_ymd(2020, 8, 7);
 
     // Source: https://www.kansas.com/news/politics-government/article244091222.html
