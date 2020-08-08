@@ -66,7 +66,7 @@ fn main() {
     let mut rdr = parser::parse_init_file(file_path).expect("Couldn't init parser");
     let vr = parser::parse(&mut rdr);
     let filtered = vr.filter(|x| x.state == "Kansas");
-    let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7).collect();
+    let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
     let (masks, nomasks) = analysis::separate(&bycounty, &maskcounties, &datelist_full, 7);
     charts::write(&masks, &nomasks, &datelist_output);

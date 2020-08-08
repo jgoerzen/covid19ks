@@ -121,7 +121,7 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(
 
 /// Separate by mask
 pub fn separate(
-    input: HashMap<String, HashMap<NaiveDate, ARecord>>,
+    input: &HashMap<String, HashMap<NaiveDate, ARecord>>,
     maskcounties: &Vec<&str>,
     datelist: &Vec<NaiveDate>,
     window: u32,
@@ -137,7 +137,7 @@ pub fn separate(
         };
         for (date, countyrec) in countyhm {
             updatehm
-                .entry(date)
+                .entry(*date)
                 .and_modify(|rec| rec.totalcases += countyrec.totalcases);
         }
     }
