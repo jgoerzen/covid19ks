@@ -49,9 +49,9 @@ fn main() {
     let filtered = vr.filter(|x| x.state == "Kansas");
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
-    let testcounty = bycounty.get("Marion").unwrap();
+    let (masks, nomasks) = analysis::separate(bycounty, &maskcounties, &datelist_full, 7);
     for item in datelist_full {
-        println!("{}, {:?}", item, testcounty.get(&item).unwrap());
+        println!("{}, {:?}, {:?}", item, masks.get(&item).unwrap(), nomasks.get(&item).unwrap());
     }
 }
 

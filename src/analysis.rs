@@ -109,3 +109,25 @@ pub fn parser_to_county<I: Iterator<Item = parser::Record>>(input: I, datelist: 
     hm
        
 }
+
+/// Separate by mask
+pub fn separate(input: HashMap<String, HashMap<NaiveDate, ARecord>>, maskcounties: &Vec<&str>,
+                                                    datelist: &Vec<NaiveDate>, window: u32) -> (HashMap<NaiveDate, ARecord>, HashMap<NaiveDate, ARecord>) {
+    let mut maskshm = newhashmap(datelist);
+    let mut nomaskshm = newhashmap(datelist);
+
+    for (county, countyhm) in input {
+        let updatehm = if maskcounties.contains(&county.as_str()) { &mut maskshm } else { &mut nomaskshm };
+        for (date, countyrec) in countyhm {
+            updatehm.entry(date).and_modify(|rec| { rec.totalcases += countyrec.totalcases });
+        }
+    }
+
+    setnewcase(&mut maskshm, datelist);
+    setnewcaseavg(&mut maskshm, datelist, window);
+
+    setnewcase(&mut nomaskshm, datelist);
+    setnewcaseavg(&mut nomaskshm, datelist, window);
+
+    (maskshm, nomaskshm)
+}
