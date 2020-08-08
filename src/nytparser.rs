@@ -65,9 +65,8 @@ pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
 
 /* Will panic on parse error.  */
 pub fn parse<'a, A: std::io::Read>(
-    file_path: String,
+    rdr: &'a mut csv::Reader<A>,
 ) -> impl Iterator<Item = ARecord> + 'a {
-    let mut rdr = parse_init_file(file_path).expect("Couldn't init parser");
     let recs = parse_records(rdr.byte_records());
     parse_to_final(recs)
 }

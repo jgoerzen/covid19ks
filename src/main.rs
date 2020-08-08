@@ -70,7 +70,8 @@ fn main() {
         .expect("need args")
         .into_string()
         .expect("conversion issue");
-    let vr = nytparser::parse(file_path);
+    let mut rdr = parseutil::parse_init_file(file_path).expect("Couldn't init parser");
+    let vr = nytparser::parse(&mut rdr);
     let filtered = vr.filter(|x| x.state == Some(String::from("Kansas")));
     let bycounty = analysis::parser_to_county(filtered, &datelist_full, 7);
 
