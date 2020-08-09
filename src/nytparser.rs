@@ -60,7 +60,7 @@ pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
 pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
     striter: A,
 ) -> impl Iterator<Item = ARecord> {
-    striter.filter_map(|x| struct_to_arecord(rec_to_struct(&x)))
+    striter.filter_map(|x| struct_to_arecord(rec_to_struct(&x).expect("rec_to_struct")))
 }
 
 /* Will panic on parse error.  */

@@ -36,14 +36,8 @@ where
     S::from_str(&s).map_err(de::Error::custom)
 }
 
-/* The input data is a bunch of 1-column notes at the end, citation details, etc.
-These won't parse as a record, so just discard them. */
-pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(record: &'a csv::StringRecord) -> Option<A> {
-    if record.len() != 1 {
-        let rec: A = record.deserialize(None).expect("rec_to_struct");
-        return Some(rec);
-    }
-    return None;
+pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(record: &'a csv::StringRecord) -> Result<A, csv::Error> {
+    record.deserialize(None)
 }
 
 pub fn parse_init_file(filename: String) -> Result<csv::Reader<File>, Box<dyn Error>> {

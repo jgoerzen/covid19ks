@@ -66,7 +66,7 @@ fn main() {
     );
     let datelist_updated = analysis::alldates(&first_date, &data_last_date);
 
-    /// NYT-based data
+    // NYT-based data
     let file_path = get_nth_arg(1)
         .expect("need args: path-to-us-counties.csv path-to-csse_covid_19_daily_reports")
         .into_string()
@@ -78,7 +78,7 @@ fn main() {
 
     let (nytmasks, nytnomasks) = analysis::separate(&nytbycounty, &maskcounties, &datelist_full, 7);
 
-    /// JHU-based data
+    // JHU-based data
     let base_dir = get_nth_arg(2)
         .expect("need args: path-to-us-counties.csv path-to-csse_covid_19_daily_reports")
         .into_string()
@@ -100,6 +100,17 @@ fn main() {
         &datelist_output,
     );
     charts::write(
+        "main-jhu.png",
+        arecord::ARecord::getnewcaseavg,
+        "COVID-19: Masks vs no-mask counties, KS",
+        "7-day moving average of new cases, % relative to July 12",
+        60f64,
+        150f64,
+        &jhumasks,
+        &jhunomasks,
+        &datelist_output,
+    );
+    charts::write(
         "main-updated.png",
         arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
@@ -116,7 +127,7 @@ fn main() {
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
-        130f64,
+        150f64,
         &jhumasks,
         &jhunomasks,
         &datelist_updated,
@@ -133,6 +144,17 @@ fn main() {
         &datelist_output,
     );
     charts::write(
+        "deaths-jhu.png",
+        arecord::ARecord::getnewdeathavg,
+        "COVID-19 deaths: Mask vs no-mask",
+        "7-day moving average of new deaths, % relative to July 12",
+        20f64,
+        400f64,
+        &jhumasks,
+        &jhunomasks,
+        &datelist_output,
+    );
+    charts::write(
         "deaths-updated.png",
         arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
@@ -141,6 +163,17 @@ fn main() {
         400f64,
         &nytmasks,
         &nytnomasks,
+        &datelist_updated,
+    );
+    charts::write(
+        "deaths-updated-jhu.png",
+        arecord::ARecord::getnewdeathavg,
+        "COVID-19 deaths: Mask vs no-mask",
+        "7-day moving average of new deaths, % relative to July 12",
+        20f64,
+        400f64,
+        &jhumasks,
+        &jhunomasks,
         &datelist_updated,
     );
     charts::writecounties(
@@ -155,6 +188,17 @@ fn main() {
         &datelist_output,
     );
     charts::writecounties(
+        "counties-jhu.png",
+        arecord::ARecord::getnewcaseavg,
+        "COVID-19 cases in Selected Counties, Kansas",
+        "7-day moving average of new cases, % relative to July 12",
+        10f64,
+        300f64,
+        &vec!["Marion", "McPherson", "Harvey", "Saline"],
+        &jhubycounty,
+        &datelist_output,
+    );
+    charts::writecounties(
         "counties-updated.png",
         arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
@@ -163,6 +207,17 @@ fn main() {
         200f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &nytbycounty,
+        &datelist_updated,
+    );
+    charts::writecounties(
+        "counties-updated-jhu.png",
+        arecord::ARecord::getnewcaseavg,
+        "COVID-19 cases in Selected Counties, Kansas",
+        "7-day moving average of new cases, % relative to July 12",
+        0f64,
+        400f64,
+        &vec!["Marion", "McPherson", "Harvey", "Saline"],
+        &jhubycounty,
         &datelist_updated,
     );
 }

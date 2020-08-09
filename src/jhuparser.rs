@@ -78,20 +78,12 @@ pub fn struct_to_arecord(date: NaiveDate, rec: Option<Record>) -> Option<ARecord
     }
 }
 
-pub fn parse_to_final<'a, A: 'a + Iterator<Item = csv::StringRecord>>(
-    date: &'a NaiveDate,
-    striter: A,
-) -> impl Iterator<Item = ARecord> + 'a {
-    striter.filter_map(move |x| struct_to_arecord(date.clone(), rec_to_struct(&x)))
-}
-
 /* Will panic on parse error.  */
 pub fn parse_init<'a>(
     date: &NaiveDate,
     base_dir: &str,
 ) -> csv::Reader<File> {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
-    println!("{}", filename);
     parse_init_file(filename).expect("Couldn't init parser")
 }
 
@@ -105,7 +97,7 @@ pub fn parse<'a>(
         let recs: Vec<Record> = parse_init(date, base_dir)
             .byte_records()
             .map(|x| parse_record(x.expect("Error in param to parse_record")))
-            .filter_map(|x| rec_to_struct(&x))
+            .filter_map(|x| rec_to_struct(&x).ok())
             .collect();
 
         let date = date.clone();
