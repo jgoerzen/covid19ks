@@ -54,9 +54,9 @@ pub struct Record {
     #[serde(rename = "Combined_Key")]
     pub combined_key: String,
     #[serde(rename = "Incidence_Rate")]
-    pub incidence_rate: f64,
+    pub incidence_rate: Option<f64>,
     #[serde(rename = "Case-Fatality_Ratio")]
-    pub case_fatality_ratio: f64,
+    pub case_fatality_ratio: Option<f64>,
 
 }
 
@@ -71,8 +71,8 @@ pub fn struct_to_arecord(date: NaiveDate, rec: Option<Record>) -> Option<ARecord
                            totaldeaths: r.deaths,
                            totalrecovered: r.recovered,
                            totalactive: r.active,
-                           incidence_rate: r.incidence_rate,
-                           case_fatality_ratio: r.case_fatality_ratio,
+                           incidence_rate: r.incidence_rate.unwrap_or(0.0),
+                           case_fatality_ratio: r.case_fatality_ratio.unwrap_or(0.0),
                            ..ARecord::default()}),
         None => None,
     }
@@ -91,6 +91,7 @@ pub fn parse_init<'a>(
     base_dir: &str,
 ) -> csv::Reader<File> {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
+    println!("{}", filename);
     parse_init_file(filename).expect("Couldn't init parser")
 }
 
@@ -103,7 +104,7 @@ pub fn parse<'a>(
     datelist.iter().flat_map(move |date| {
         let recs: Vec<Record> = parse_init(date, base_dir)
             .byte_records()
-            .map(|x| parse_record(x.unwrap()))
+            .map(|x| parse_record(x.expect("Error in param to parse_record")))
             .filter_map(|x| rec_to_struct(&x))
             .collect();
 
