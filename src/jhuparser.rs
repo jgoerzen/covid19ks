@@ -103,7 +103,7 @@ pub fn parse<'a>(
     datelist.iter().flat_map(move |date| {
         parse_init(date, base_dir).byte_records()
             .map(|x| parse_record(x.unwrap()))
-            .map(|x| struct_to_arecord(*date, rec_to_struct(&x).unwrap()))
+            .map(|x| struct_to_arecord(*date, rec_to_struct(&x)).unwrap())
     })
 
 
