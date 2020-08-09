@@ -147,10 +147,7 @@ pub fn separate(
             &mut nomaskshm
         };
         for (date, countyrec) in countyhm {
-            updatehm.entry(*date).and_modify(|rec| {
-                rec.totalcases += countyrec.totalcases;
-                rec.totaldeaths += countyrec.totaldeaths
-            });
+            updatehm.entry(*date).and_modify(|rec| rec.combine(countyrec));
         }
     }
 
