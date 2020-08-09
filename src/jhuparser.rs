@@ -16,10 +16,10 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use chrono;
-use chrono::naive::NaiveDate;
 use crate::arecord::ARecord;
 use crate::parseutil::*;
+use chrono;
+use chrono::naive::NaiveDate;
 use csv;
 use serde::Deserialize;
 use std::fs::File;
@@ -54,32 +54,29 @@ pub struct Record {
     pub incidence_rate: Option<f64>,
     #[serde(rename = "Case-Fatality_Ratio")]
     pub case_fatality_ratio: Option<f64>,
-
 }
 
 /// Convert to (County, ARecord) tuple.
 pub fn struct_to_arecord(date: NaiveDate, rec: Option<Record>) -> Option<ARecord> {
     match rec {
-        Some(r) =>
-            Some(ARecord { state: Some(r.state),
-                           county: Some(r.county),
-                           date: Some(date),
-                           totalcases: r.cases,
-                           totaldeaths: r.deaths,
-                           totalrecovered: r.recovered,
-                           totalactive: r.active,
-                           incidence_rate: r.incidence_rate.unwrap_or(0.0),
-                           case_fatality_ratio: r.case_fatality_ratio.unwrap_or(0.0),
-                           ..ARecord::default()}),
+        Some(r) => Some(ARecord {
+            state: Some(r.state),
+            county: Some(r.county),
+            date: Some(date),
+            totalcases: r.cases,
+            totaldeaths: r.deaths,
+            totalrecovered: r.recovered,
+            totalactive: r.active,
+            incidence_rate: r.incidence_rate.unwrap_or(0.0),
+            case_fatality_ratio: r.case_fatality_ratio.unwrap_or(0.0),
+            ..ARecord::default()
+        }),
         None => None,
     }
 }
 
 /* Will panic on parse error.  */
-pub fn parse_init<'a>(
-    date: &NaiveDate,
-    base_dir: &str,
-) -> csv::Reader<File> {
+pub fn parse_init<'a>(date: &NaiveDate, base_dir: &str) -> csv::Reader<File> {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
     parse_init_file(filename).expect("Couldn't init parser")
 }
@@ -87,9 +84,8 @@ pub fn parse_init<'a>(
 /* Will panic on parse error.  */
 pub fn parse<'a>(
     base_dir: &'a str,
-    datelist: &'a Vec<NaiveDate>)
- -> impl Iterator<Item = ARecord> + 'a {
-
+    datelist: &'a Vec<NaiveDate>,
+) -> impl Iterator<Item = ARecord> + 'a {
     datelist.iter().flat_map(move |date| {
         let recs: Vec<Record> = parse_init(date, base_dir)
             .byte_records()
@@ -98,8 +94,7 @@ pub fn parse<'a>(
             .collect();
 
         let date = date.clone();
-        recs.into_iter().map(move |x| struct_to_arecord(date, Some(x)).unwrap())
+        recs.into_iter()
+            .map(move |x| struct_to_arecord(date, Some(x)).unwrap())
     })
-
-
 }

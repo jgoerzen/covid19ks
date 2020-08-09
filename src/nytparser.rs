@@ -16,16 +16,12 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use chrono;
-use chrono::naive::NaiveDate;
 use crate::arecord::ARecord;
 pub use crate::parseutil::*;
+use chrono;
+use chrono::naive::NaiveDate;
 use csv;
-use serde::{de, Deserialize, Deserializer};
-use std::error::Error;
-use std::fmt::Display;
-use std::fs::File;
-use std::str::FromStr;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Record {
@@ -46,13 +42,14 @@ pub struct Record {
 /// Convert to (County, ARecord) tuple.
 pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
     match rec {
-        Some(r) =>
-            Some(ARecord { state: Some(r.state),
-                           county: Some(r.county),
-                           date: Some(r.date),
-                           totalcases: r.cases,
-                           totaldeaths: r.deaths,
-                           ..ARecord::default()}),
+        Some(r) => Some(ARecord {
+            state: Some(r.state),
+            county: Some(r.county),
+            date: Some(r.date),
+            totalcases: r.cases,
+            totaldeaths: r.deaths,
+            ..ARecord::default()
+        }),
         None => None,
     }
 }

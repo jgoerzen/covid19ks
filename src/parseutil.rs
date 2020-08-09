@@ -16,9 +16,6 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use chrono;
-use chrono::naive::NaiveDate;
-use crate::arecord::ARecord;
 use csv;
 use serde::{de, Deserialize, Deserializer};
 use std::error::Error;
@@ -36,7 +33,9 @@ where
     S::from_str(&s).map_err(de::Error::custom)
 }
 
-pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(record: &'a csv::StringRecord) -> Result<A, csv::Error> {
+pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(
+    record: &'a csv::StringRecord,
+) -> Result<A, csv::Error> {
     record.deserialize(None)
 }
 

@@ -81,9 +81,10 @@ pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>
         let mut thisdate = item.clone();
         let mut counter = window;
         while counter > 0 {
-            let (newcases, newdeaths, newrecovered, newactive) = hm
-                .get(&thisdate)
-                .map_or((0, 0, 0, 0), |rec| (rec.newcases, rec.newdeaths, rec.chgrecovered, rec.chgactive));
+            let (newcases, newdeaths, newrecovered, newactive) =
+                hm.get(&thisdate).map_or((0, 0, 0, 0), |rec| {
+                    (rec.newcases, rec.newdeaths, rec.chgrecovered, rec.chgactive)
+                });
             caseaccum += newcases;
             deathaccum += newdeaths;
             recoveredaccum += newrecovered;

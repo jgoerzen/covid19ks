@@ -22,11 +22,11 @@ use std::error::Error;
 use std::ffi::OsString;
 
 mod analysis;
-mod charts;
-mod nytparser;
 mod arecord;
-mod parseutil;
+mod charts;
 mod jhuparser;
+mod nytparser;
+mod parseutil;
 
 /// Returns the first positional argument sent to this process. If there are no
 /// positional arguments, then this returns an error.
@@ -60,10 +60,7 @@ fn main() {
         "Montgomery",
     ];
     let datelist_output = analysis::alldates(&first_date, &last_date);
-    let datelist_full = analysis::alldates(
-        &data_first_date,
-        &data_last_date,
-    );
+    let datelist_full = analysis::alldates(&data_first_date, &data_last_date);
     let datelist_updated = analysis::alldates(&first_date, &data_last_date);
 
     // NYT-based data
