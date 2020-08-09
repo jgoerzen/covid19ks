@@ -108,7 +108,7 @@ fn main() {
         &datelist_output,
     );
     charts::write(
-        "images/main-updated.png",
+        "images/main-updated-nyt.png",
         arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
@@ -130,7 +130,7 @@ fn main() {
         &datelist_updated,
     );
     charts::write(
-        "images/deaths.png",
+        "images/deaths-nyt.png",
         arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
@@ -152,7 +152,7 @@ fn main() {
         &datelist_output,
     );
     charts::write(
-        "images/deaths-updated.png",
+        "images/deaths-updated-nyt.png",
         arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
@@ -196,7 +196,7 @@ fn main() {
         &datelist_output,
     );
     charts::writecounties(
-        "images/counties-updated.png",
+        "images/counties-updated-nyt.png",
         arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
