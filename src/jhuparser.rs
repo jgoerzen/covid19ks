@@ -21,11 +21,8 @@ use chrono::naive::NaiveDate;
 use crate::arecord::ARecord;
 use crate::parseutil::*;
 use csv;
-use serde::{de, Deserialize, Deserializer};
-use std::error::Error;
-use std::fmt::Display;
+use serde::Deserialize;
 use std::fs::File;
-use std::str::FromStr;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Record {
