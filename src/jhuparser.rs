@@ -101,9 +101,14 @@ pub fn parse<'a>(
  -> impl Iterator<Item = ARecord> + 'a {
 
     datelist.iter().flat_map(move |date| {
-        parse_init(date, base_dir).byte_records()
+        let recs: Vec<Record> = parse_init(date, base_dir)
+            .byte_records()
             .map(|x| parse_record(x.unwrap()))
-            .map(|x| struct_to_arecord(*date, rec_to_struct(&x)).unwrap())
+            .filter_map(|x| rec_to_struct(&x))
+            .collect();
+
+        let date = date.clone();
+        recs.into_iter().map(move |x| struct_to_arecord(date, Some(x)).unwrap())
     })
 
 
