@@ -91,8 +91,7 @@ pub fn parse_init<'a>(
     base_dir: &str,
 ) -> csv::ByteRecordsIter<'a, File> {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
-    let mut rdr = parse_init_file(filename).expect("Couldn't init parser");
-    rdr.byte_records()
+    let mut rdr = parse_init_file(filename).expect("Couldn't init parser")
 }
 
 /* Will panic on parse error.  */
@@ -102,7 +101,7 @@ pub fn parse<'a>(
  -> impl Iterator<Item = ARecord> + 'a {
 
     datelist.iter().flat_map(move |date| {
-        parse_to_final(date, parse_records(parse_init(date, base_dir)))
+        parse_to_final(date, parse_records(parse_init(date, base_dir).byte_records()))
     })
 
 
