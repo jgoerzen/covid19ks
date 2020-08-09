@@ -23,6 +23,9 @@ For details on these, please see [main information](../README.md).
 ![](../counties.png)
 
 ## Original counties, JHU data
+
+Due do a data anomaly in Marion County around August 1, showing a negative number of new cases, the moving average in Marion County in late July and early August in the JHU graph is incorrect.
+ 
 ![](counties-jhu.png)
 
 ## Updated counties, NYT data
@@ -30,5 +33,7 @@ For details on these, please see [main information](../README.md).
 ![](counties-updated-nyt.png)
 
 ## Updated counties, JHU data
+
+Due do a data anomaly in Marion County around August 1, showing a negative number of new cases, the moving average in Marion County in late July and early August in the JHU graph is incorrect.
 
 ![](counties-updated-jhu.png)
