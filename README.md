@@ -6,7 +6,23 @@ Some people questioned whether this chart was misleading due to its use of diffe
 
 ![](main.png)
 
-The source data is us-counties.csv from the [covid-19-data set](https://github.com/nytimes/covid-19-data).  It is passed as the one parameter to the executable in this repository.  [This particular version](https://github.com/nytimes/covid-19-data/blob/42590181052a7591385562a59fdd545bd478f763/us-counties.csv) was used for the generation of the graph here, so you can verify these results for yourself.
+The source data is us-counties.csv from the [covid-19-data set](https://github.com/nytimes/covid-19-data), collected by the New York Times based on government sources.  The [Johns Hopkins CSSE data set](https://github.com/CSSEGISandData/COVID-19) is also used to plot alternative versions of these charts.
+
+I have [many more graphs](images/README.md) also available.
+
+# Invocation
+
+To run, you must pass it the path to the NYT `us-counties.csv` file and the John Hopkins `csse_covid_19_daily_reports` directory.  For instance:
+
+``` sh
+git clone https://github.com/nytimes/covid-19-data
+git clone https://github.com/CSSEGISandData/COVID-19
+git clone https://github.com/jgoerzen/covid19ks
+cd covid19ks
+cargo run --release -- ../covid-19-data/us-counties.csv ../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports
+```
+
+With these commands, you can verify these results for yourself.  If you don't already have Rust installed, see the [Rust installation](https://www.rust-lang.org/tools/install) page.
 
 # Copyright
 
