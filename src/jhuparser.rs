@@ -61,12 +61,12 @@ pub struct Record {
 }
 
 /// Convert to (County, ARecord) tuple.
-pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
+pub fn struct_to_arecord(date: NaiveDate, rec: Option<Record>) -> Option<ARecord> {
     match rec {
         Some(r) =>
             Some(ARecord { state: Some(r.state),
                            county: Some(r.county),
-                           date: Some(r.date),
+                           date: Some(date),
                            totalcases: r.cases,
                            totaldeaths: r.deaths,
                            totalrecovered: r.recovered,
@@ -78,29 +78,32 @@ pub fn struct_to_arecord(rec: Option<Record>) -> Option<ARecord> {
     }
 }
 
-pub fn parse_to_final<A: Iterator<Item = csv::StringRecord>>(
+pub fn parse_to_final<'a, A: 'a + Iterator<Item = csv::StringRecord>>(
+    date: &'a NaiveDate,
     striter: A,
-) -> impl Iterator<Item = ARecord> {
-    striter.filter_map(|x| struct_to_arecord(rec_to_struct(x)))
+) -> impl Iterator<Item = ARecord> + 'a {
+    striter.filter_map(move |x| struct_to_arecord(date.clone(), rec_to_struct(&x)))
 }
 
 /* Will panic on parse error.  */
-pub fn parse_init(
+pub fn parse_init<'a>(
     date: &NaiveDate,
     base_dir: &str,
-) -> (NaiveDate, csv::Reader<File>) {
+) -> csv::ByteRecordsIter<'a, File> {
     let filename = format!("{}/{}.csv", base_dir, date.format("%m-%d-%Y"));
-    (date.clone(), parse_init_file(filename).expect("Couldn't init parser"))
+    let mut rdr = parse_init_file(filename).expect("Couldn't init parser");
+    rdr.byte_records()
 }
 
 /* Will panic on parse error.  */
 pub fn parse<'a>(
-    base_dir: String,
-    datelist: &Vec<NaiveDate>)
+    base_dir: &'a str,
+    datelist: &'a Vec<NaiveDate>)
  -> impl Iterator<Item = ARecord> + 'a {
 
-    datelist.iter().flat_map(|date| parse_init(date, base_dir.as_ref()))
-        .flat_map(|(date, rdr)| parse_jhu_rec(date, rdr.byte_records()))
+    datelist.iter().flat_map(move |date| {
+        parse_to_final(date, parse_records(parse_init(date, base_dir)))
+    })
+
+
 }
-
-

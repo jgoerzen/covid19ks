@@ -38,7 +38,7 @@ where
 
 /* The input data is a bunch of 1-column notes at the end, citation details, etc.
 These won't parse as a record, so just discard them. */
-pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(record: csv::StringRecord) -> Option<A> {
+pub fn rec_to_struct<'a, A: serde::Deserialize<'a>>(record: &'a csv::StringRecord) -> Option<A> {
     if record.len() != 1 {
         let rec: A = record.deserialize(None).expect("rec_to_struct");
         return Some(rec);
