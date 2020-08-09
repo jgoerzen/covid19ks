@@ -65,3 +65,6 @@ pub fn parse_records<'a, A: std::io::Read>(
     byteiter.map(|x| csv::StringRecord::from_byte_record_lossy(x.expect("Error in parse_records")))
 }
 
+pub fn parse_record(rec: csv::ByteRecord) -> csv::StringRecord {
+    csv::StringRecord::from_byte_record_lossy(rec)
+}
