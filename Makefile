@@ -20,8 +20,6 @@
 
 build:
 	cargo run --release $(COVID19DB_PATH)
-	cat static/header.html \
-		images/*.html static/footer.html \
-		> images/full.html
+	cat static/header.html all.html static/footer.html > full.html
 
 # end

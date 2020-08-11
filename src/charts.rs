@@ -34,7 +34,8 @@ use plotly::plot::ImageFormat;
 // use rand_distr::{Distribution, Normal, Uniform};
 
 pub fn write(
-    filename: &str,
+    filename: &'static str, // FIXME: this is because to_inline_html requires a 'static for some reason
+    bightml: &mut File,
     title: &str,
     yaxis: &str,
     masks: &HashMap<i32, f64>,
@@ -66,8 +67,8 @@ pub fn write(
     // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
     // plot.show_png(1024, 768);
     plot.to_html(filename);
-    // plot.to_inline_html("blah")
-
+    bightml.write_all(plot.to_inline_html(filename).as_ref()).unwrap();
+    bightml.write_all(b"<br/>\n").unwrap();
 }
 
 pub fn writecounties(

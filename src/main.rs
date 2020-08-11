@@ -23,6 +23,7 @@ use sqlx::sqlite::SqlitePool;
 use covid19db::dateutil::*;
 use std::path::Path;
 use chrono::Local;
+use std::fs::File;
 
 mod counties;
 mod analysis;
@@ -67,6 +68,8 @@ async fn main() {
         "Montgomery",
     ]);
 
+    let mut bightml = File::create("all.html").unwrap();
+
     let filename = match get_nth_arg(1) {
         Ok(x) => String::from(x.to_str().unwrap()),
         Err(_) => {
@@ -95,6 +98,7 @@ async fn main() {
 
     charts::write(
         "images/main-nyt.html",
+        &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (NYT)",
         "7-day moving average of new cases, % relative to July 12",
         &nytmasks,
@@ -105,6 +109,7 @@ async fn main() {
 
     charts::write(
         "images/main-jhu.html",
+        &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (JHU)",
         "7-day moving average of new cases, % relative to July 12",
         &jhumasks,
@@ -115,6 +120,7 @@ async fn main() {
 
     charts::write(
         "images/main-updated-nyt.html",
+        &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (Updated NYT)",
         "7-day moving average of new cases, % relative to July 12",
         &nytmasks,
@@ -125,6 +131,7 @@ async fn main() {
 
     charts::write(
         "images/main-updated-jhu.html",
+        &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (Updated JHU)",
         "7-day moving average of new cases, % relative to July 12",
         &jhumasks,
@@ -146,6 +153,7 @@ async fn main() {
 
     charts::write(
         "images/deaths-nyt.html",
+        &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (NYT)",
         "7-day moving average of new deaths, % relative to July 12",
         &nytmasks,
@@ -155,6 +163,7 @@ async fn main() {
     );
     charts::write(
         "images/deaths-jhu.html",
+        &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (JHU)",
         "7-day moving average of new deaths, % relative to July 12",
         &jhumasks,
@@ -164,6 +173,7 @@ async fn main() {
     );
     charts::write(
         "images/deaths-updated-nyt.html",
+        &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (Updated NYT)",
         "7-day moving average of new deaths, % relative to July 12",
         &nytmasks,
@@ -173,6 +183,7 @@ async fn main() {
     );
     charts::write(
         "images/deaths-updated-jhu.html",
+        &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (Updated JHU)",
         "7-day moving average of new deaths, % relative to July 12",
         &jhumasks,
