@@ -53,3 +53,12 @@ pub fn calcweightedma(hm: &mut HashMap<i32, f64>, window: usize) {
         *entry = sum / ((history.len() * (history.len() + 1)) as f64 / 2.0)
     }
 }
+
+pub fn pctofday0(hm: &HashMap<i32, f64>, firstdate: i32) -> HashMap<i32, f64> {
+    let day0 = hm.get(&firstdate).expect("Can't find first value");
+    let mut hm = hm.clone();
+    for (_, val) in hm.iter_mut() {
+        *val = 100f64 * *val / day0;
+    }
+    hm
+}

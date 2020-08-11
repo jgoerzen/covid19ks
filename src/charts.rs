@@ -23,6 +23,7 @@ use std::fs::File;
 use std::io::Write;
 
 use covid19db::dateutil::*;
+use crate::analysis;
 
 // use itertools_num::linspace;
 use plotly::common::{
@@ -32,6 +33,37 @@ use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
 use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
 use plotly::plot::ImageFormat;
 // use rand_distr::{Distribution, Normal, Uniform};
+
+pub fn write_generic(
+    filename: &str,
+    bightml: &mut File,
+    title: &str,
+    yaxis: &str,
+    series: Vec<(&str, HashMap<i32, f64>)>,
+    firstdate: i32,
+    lastdate: i32,
+) {
+
+    let mut plot = Plot::new();
+    for (label, data) in series {
+        let trace = Scatter::new((firstdate..=lastdate).map(day_to_nd),
+                                 (firstdate..=lastdate).map(|x| data.get(&x).unwrap().clone() ))
+            .mode(Mode::Lines)
+            .name(label);
+        plot.add_trace(trace);
+    }
+
+    let layout = Layout::new().title(Title::new(title))
+        .y_axis(Axis::new().title(Title::new(yaxis)));
+    plot.set_layout(layout);
+    println!("Writing to {}", filename);
+    // plot.show();
+    // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
+    // plot.show_png(1024, 768);
+    plot.to_html(filename);
+    bightml.write_all(plot.to_inline_html(None).as_ref()).unwrap();
+    bightml.write_all(b"<br/>\n").unwrap();
+}
 
 pub fn write(
     filename: &'static str, // FIXME: this is because to_inline_html requires a 'static for some reason
@@ -43,32 +75,11 @@ pub fn write(
     firstdate: i32,
     lastdate: i32,
 ) -> () {
-    let masksday0 = masks.get(&firstdate).expect("Can't find first value");
-    let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
-
-    let tracemasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
-                                  (firstdate..=lastdate).map(|x| 100f64 * masks.get(&x).unwrap() / masksday0))
-        .mode(Mode::Lines)
-        .name("Masks");
-    let tracenomasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
-                                  (firstdate..=lastdate).map(|x| 100f64 * nomasks.get(&x).unwrap() / nomasksday0))
-        .mode(Mode::Lines)
-        .name("No masks");
-
-    let layout = Layout::new().title(Title::new(title))
-        .y_axis(Axis::new().title(Title::new(yaxis)));
-
-    let mut plot = Plot::new();
-    plot.add_trace(tracemasks);
-    plot.add_trace(tracenomasks);
-    plot.set_layout(layout);
-    println!("Writing to {}", filename);
-    // plot.show();
-    // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
-    // plot.show_png(1024, 768);
-    plot.to_html(filename);
-    bightml.write_all(plot.to_inline_html(filename).as_ref()).unwrap();
-    bightml.write_all(b"<br/>\n").unwrap();
+    let maskshm = analysis::pctofday0(masks, firstdate);
+    let nomaskshm = analysis::pctofday0(nomasks, firstdate);
+    let series = vec![("Masks", maskshm), ("No masks", nomaskshm)];
+    write_generic(filename, bightml, title, yaxis,
+                  series, firstdate, lastdate)
 }
 
 pub fn writecounties(
