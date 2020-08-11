@@ -37,16 +37,13 @@ pub fn write(
     filename: &str,
     title: &str,
     yaxis: &str,
-    ymin: f64,
-    ymax: f64,
     masks: &HashMap<i32, f64>,
     nomasks: &HashMap<i32, f64>,
     firstdate: i32,
     lastdate: i32,
-) {
+) -> () {
     let masksday0 = masks.get(&firstdate).expect("Can't find first value");
     let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
-    /*
 
     let tracemasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
                                   (firstdate..=lastdate).map(|x| 100f64 * masks.get(&x).unwrap() / masksday0))
@@ -69,61 +66,8 @@ pub fn write(
     // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
     // plot.show_png(1024, 768);
     plot.to_html(filename);
+    // plot.to_inline_html("blah")
 
-}
-
-    */
-
-
-    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
-    root.fill(&WHITE).unwrap();
-
-    let mut chart = ChartBuilder::on(&root)
-        .x_label_area_size(40)
-        .y_label_area_size(50)
-        .margin(5)
-        .caption(title, ("sans-serif", 50.0).into_font())
-        .build_ranged(day_to_dateutc(firstdate)..(day_to_dateutc(lastdate)), ymin..ymax)
-        .unwrap();
-
-    chart
-        .configure_mesh()
-        .line_style_2(&WHITE)
-        .y_desc(yaxis)
-        .draw()
-        .expect("draw");
-
-
-    chart
-        .draw_series(LineSeries::new(
-            (firstdate..=lastdate)
-                .into_iter()
-                .filter_map(|d| masks.get(&d).map(|x| (d, x)))
-                .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / masksday0)),
-            &RED
-        ))
-        .unwrap()
-        .label("Masks")
-        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &RED));
-
-    chart
-        .draw_series(LineSeries::new(
-            (firstdate..=lastdate)
-                .into_iter()
-                .filter_map(|d| nomasks.get(&d).map(|x| (d, x)))
-                .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / nomasksday0)),
-            &BLUE,
-        ))
-        .unwrap()
-        .label("No Masks")
-        .legend(move |(x, y)| Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &BLUE));
-
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
-        .draw()
-        .unwrap();
 }
 
 pub fn writecounties(

@@ -22,6 +22,7 @@ use std::ffi::OsString;
 use sqlx::sqlite::SqlitePool;
 use covid19db::dateutil::*;
 use std::path::Path;
+use chrono::Local;
 
 mod counties;
 mod analysis;
@@ -43,7 +44,7 @@ async fn main() {
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
-    let data_last_date = ymd_to_day(2020, 8, 10);
+    let data_last_date = dateutc_to_day(&datelocal_to_dateutc(&Local::today())) - 1;
 
     let _daterange_output = first_date..=last_date;
     let _daterange_full = data_first_date..=data_last_date;
@@ -93,11 +94,9 @@ async fn main() {
     analysis::calcsimplema(&mut jhunomasks, 7);
 
     charts::write(
-        "main.png",
-        "COVID-19: Masks vs no-mask counties, KS",
+        "images/main-nyt.html",
+        "COVID-19: Masks vs no-mask counties, KS (NYT)",
         "7-day moving average of new cases, % relative to July 12",
-        60f64,
-        130f64,
         &nytmasks,
         &nytnomasks,
         first_date,
@@ -105,11 +104,9 @@ async fn main() {
     );
 
     charts::write(
-        "images/main-jhu.png",
-        "COVID-19: Masks vs no-mask counties, KS",
+        "images/main-jhu.html",
+        "COVID-19: Masks vs no-mask counties, KS (JHU)",
         "7-day moving average of new cases, % relative to July 12",
-        60f64,
-        150f64,
         &jhumasks,
         &jhunomasks,
         first_date,
@@ -117,11 +114,9 @@ async fn main() {
     );
 
     charts::write(
-        "images/main-updated-nyt.png",
-        "COVID-19: Masks vs no-mask counties, KS",
+        "images/main-updated-nyt.html",
+        "COVID-19: Masks vs no-mask counties, KS (Updated NYT)",
         "7-day moving average of new cases, % relative to July 12",
-        60f64,
-        130f64,
         &nytmasks,
         &nytnomasks,
         first_date,
@@ -129,11 +124,9 @@ async fn main() {
     );
 
     charts::write(
-        "images/main-updated-jhu.png",
-        "COVID-19: Masks vs no-mask counties, KS",
+        "images/main-updated-jhu.html",
+        "COVID-19: Masks vs no-mask counties, KS (Updated JHU)",
         "7-day moving average of new cases, % relative to July 12",
-        60f64,
-        150f64,
         &jhumasks,
         &jhunomasks,
         first_date,
@@ -152,44 +145,36 @@ async fn main() {
     analysis::calcsimplema(&mut jhunomasks, 7);
 
     charts::write(
-        "images/deaths-nyt.png",
-        "COVID-19 deaths: Mask vs no-mask",
+        "images/deaths-nyt.html",
+        "COVID-19 deaths: Mask vs no-mask (NYT)",
         "7-day moving average of new deaths, % relative to July 12",
-        20f64,
-        400f64,
         &nytmasks,
         &nytnomasks,
         first_date,
         last_date,
     );
     charts::write(
-        "images/deaths-jhu.png",
-        "COVID-19 deaths: Mask vs no-mask",
+        "images/deaths-jhu.html",
+        "COVID-19 deaths: Mask vs no-mask (JHU)",
         "7-day moving average of new deaths, % relative to July 12",
-        20f64,
-        400f64,
         &jhumasks,
         &jhunomasks,
         first_date,
         last_date
     );
     charts::write(
-        "images/deaths-updated-nyt.png",
-        "COVID-19 deaths: Mask vs no-mask",
+        "images/deaths-updated-nyt.html",
+        "COVID-19 deaths: Mask vs no-mask (Updated NYT)",
         "7-day moving average of new deaths, % relative to July 12",
-        20f64,
-        400f64,
         &nytmasks,
         &nytnomasks,
         first_date,
         data_last_date,
     );
     charts::write(
-        "images/deaths-updated-jhu.png",
-        "COVID-19 deaths: Mask vs no-mask",
+        "images/deaths-updated-jhu.html",
+        "COVID-19 deaths: Mask vs no-mask (Updated JHU)",
         "7-day moving average of new deaths, % relative to July 12",
-        20f64,
-        400f64,
         &jhumasks,
         &jhunomasks,
         first_date,
