@@ -39,7 +39,7 @@ pub fn write_generic(
     bightml: &mut File,
     title: &str,
     yaxis: &str,
-    series: Vec<(&str, HashMap<i32, f64>)>,
+    series: Vec<(&str, &HashMap<i32, f64>)>,
     firstdate: i32,
     lastdate: i32,
 ) {
@@ -77,7 +77,7 @@ pub fn write(
 ) -> () {
     let maskshm = analysis::pctofday0(masks, firstdate);
     let nomaskshm = analysis::pctofday0(nomasks, firstdate);
-    let series = vec![("Masks", maskshm), ("No masks", nomaskshm)];
+    let series = vec![("Masks", &maskshm), ("No masks", &nomaskshm)];
     write_generic(filename, bightml, title, yaxis,
                   series, firstdate, lastdate)
 }
