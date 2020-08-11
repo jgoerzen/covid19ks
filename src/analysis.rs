@@ -41,35 +41,6 @@ pub fn newhashmap(datelist: &Vec<NaiveDate>) -> HashMap<NaiveDate, ARecord> {
     retval
 }
 
-/// Populate the new cases and deaths in the hashmap
-pub fn setnew(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>) {
-    for item in datelist {
-        // Find the previous cases
-        let mut previouscases = 0;
-        let mut previousdeaths = 0;
-        let mut previousrecovered = 0;
-        let mut previousactive = 0;
-        let mut prevdate = item.pred();
-        while prevdate >= datelist[0] {
-            if let Some(rec) = hm.get(&prevdate) {
-                previouscases = rec.totalcases;
-                previousdeaths = rec.totaldeaths;
-                previousrecovered = rec.totalrecovered;
-                previousactive = rec.totalactive;
-                break;
-            }
-            prevdate = prevdate.pred();
-        }
-
-        hm.entry(*item).and_modify(|rec| {
-            rec.newcases = rec.totalcases - previouscases;
-            rec.newdeaths = rec.totaldeaths - previousdeaths;
-            rec.chgrecovered = rec.totalrecovered - previousrecovered;
-            rec.chgactive = rec.totalactive - previousactive;
-        });
-    }
-}
-
 /// Populate the moving average in the hashmap.  Must be done after setnew
 pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
     for item in datelist {

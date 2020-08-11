@@ -5,8 +5,8 @@ authors = ["John Goerzen <jgoerzen@complete.org>"]
 edition = "2018"
 
 [dependencies]
-csv = "1.1"
-serde = { version = "1", features = ["derive"] }
-rctree = "0.3.3"
 chrono = "0.4"
 plotters = {  version = "0.2.15", features = ["chrono"] }
+covid19db = "1.1"
+sqlx = { version = "0.3", default-features = false, features = ["runtime-tokio", "macros", "sqlite", "chrono"] }
+tokio = { version = "0.2", features = ["macros"] }
