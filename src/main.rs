@@ -192,50 +192,55 @@ async fn main() {
         &jhunomasks,
         &daterange_updated,
     );
-    /*
+
+    /////////////////// Counties
+
+    let mut nytbycounty = db::getcountymaskdata(&pool, "nytimes/us-counties", "delta_confirmed", data_first_date, data_last_date).await;
+    for item in nytbycounty.values_mut() {
+        analysis::calcsimplema(item, 7);
+    }
+    let mut jhubycounty = db::getcountymaskdata(&pool, "nytimes/us-counties", "delta_confirmed", data_first_date, data_last_date).await;
+    for item in jhubycounty.values_mut() {
+        analysis::calcsimplema(item, 7);
+    }
     charts::writecounties(
         "counties.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         20f64,
         200f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &nytbycounty,
-        &datelist_output,
+        &daterange_output,
     );
     charts::writecounties(
         "images/counties-jhu.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         10f64,
         300f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &jhubycounty,
-        &datelist_output,
+        &daterange_output,
     );
     charts::writecounties(
         "images/counties-updated-nyt.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         20f64,
         200f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &nytbycounty,
-        &datelist_updated,
+        &daterange_updated,
     );
     charts::writecounties(
         "images/counties-updated-jhu.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19 cases in Selected Counties, Kansas",
         "7-day moving average of new cases, % relative to July 12",
         0f64,
         400f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &jhubycounty,
-        &datelist_updated,
+        &daterange_updated,
     );
-    */
 }

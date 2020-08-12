@@ -101,29 +101,38 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
         .unwrap();
 }
 
-/*
-pub fn writecounties<F>(
+pub fn writecounties<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
     filename: &str,
-    func: F,
     title: &str,
     yaxis: &str,
     ymin: f64,
     ymax: f64,
     counties: &Vec<&str>,
-    bycounty: &HashMap<String, HashMap<NaiveDate, ARecord>>,
-    datelist: &Vec<NaiveDate>,
-) where
-    F: Fn(&ARecord) -> f64,
+    bycounty: &HashMap<String, HashMap<i32, f64>>,
+    datelist: &T,
+)
 {
+    let firstdate = match datelist.start_bound() {
+        Bound::Included(t) => *t,
+        Bound::Excluded(t) => *t + 1,
+        Bound::Unbounded => panic!("Unbounded date range not supported"),
+    };
+    let lastdate = match datelist.end_bound() {
+        Bound::Included(t) => *t,
+        Bound::Excluded(t) => *t - 1,
+        Bound::Unbounded => panic!("Unbounded date range not supported"),
+    };
+
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
+    // FIXME: the .. below should be ..=
     let mut chart = ChartBuilder::on(&root)
         .x_label_area_size(40)
         .y_label_area_size(50)
         .margin(5)
         .caption(title, ("sans-serif", 50.0).into_font())
-        .build_ranged(n2d(&datelist[0])..n2d(datelist.last().unwrap()), ymin..ymax)
+        .build_ranged(day_to_dateutc(firstdate)..day_to_dateutc(lastdate), ymin..ymax)
         .unwrap();
 
     chart
@@ -137,13 +146,14 @@ pub fn writecounties<F>(
 
     for county in counties {
         let data = bycounty.get(&String::from(*county)).unwrap();
-        let day0 = func(data.get(&datelist[0]).unwrap());
+        let day0 = data.get(&firstdate).expect("Can't find first value");
 
         chart
             .draw_series(LineSeries::new(
-                datelist
-                    .iter()
-                    .map(|d| (n2d(d), 100f64 * func(data.get(d).unwrap()) / day0)),
+                datelist.clone()
+                    .into_iter()
+                    .filter_map(|d| data.get(&d).map(|x| (d, x)))
+                    .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / day0)),
                 &Palette99::pick(idx),
             ))
             .unwrap()
@@ -161,4 +171,3 @@ pub fn writecounties<F>(
         .draw()
         .unwrap();
 }
-*/
