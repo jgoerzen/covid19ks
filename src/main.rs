@@ -25,6 +25,7 @@ use sqlx::sqlite::SqlitePool;
 use covid19db::dateutil::*;
 use chrono::{Date, Utc};
 use std::collections::HashMap;
+use std::path::Path;
 
 mod counties;
 mod analysis;
@@ -78,30 +79,20 @@ async fn main() {
         } };
 
 
-    let mut pool = SqlitePool::builder()
+    if ! Path::new(filename.as_str()).exists() {
+        panic!("{} does not exist; download or specify alternative path on command line", filename)
+    }
+    let pool = SqlitePool::builder()
         .max_size(5)
         .build(format!("sqlite::{}", filename).as_ref())
         .await
         .expect("Error building");
 
-    let mut nytmasks: HashMap<i32, f64> =
-        sqlx::query_as::<_, (i32, i64)>(db::makemasksstr("nytimes/us-counties", true, &maskcounties).as_str())
-        .bind(data_first_date)
-        .bind(data_last_date)
-        .fetch_all(&pool).
-        await.unwrap()
-             .into_iter().map(|(x, y)| (x, y as f64))
-             .collect();
+    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", true, &maskcounties, data_first_date, data_last_date).await;
     analysis::calcsimplema(&mut nytmasks, 7);
-    let mut nytnomasks: HashMap<i32, f64> =
-        sqlx::query_as::<_, (i32, i64)>(db::makemasksstr("nytimes/us-counties", false, &maskcounties).as_str())
-        .bind(data_first_date)
-        .bind(data_last_date)
-        .fetch_all(&pool).
-        await.unwrap()
-             .into_iter().map(|(x, y)| (x, y as f64))
-             .collect();
+    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", false, &maskcounties, data_first_date, data_last_date).await;
     analysis::calcsimplema(&mut nytnomasks, 7);
+
 
     charts::write(
         "main.png",

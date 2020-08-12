@@ -21,6 +21,7 @@ use chrono::NaiveDate;
 use sqlx::prelude::*;
 use sqlx::sqlite::SqliteRow;
 use crate::counties::Counties;
+use std::collections::HashMap;
 
 pub struct DB<'a> {
     pub pool: &'a mut sqlx::SqlitePool,
@@ -50,4 +51,15 @@ pub fn makemasksstr(dataset: &str, masks: bool, counties: &Counties<'_>) -> Stri
             GROUP BY date_julian ORDER BY date_julian",
             dataset, if masks { "" } else { "not" },
             counties.sqlclause().as_str())
+}
+
+/// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to delta_confirmed
+pub async fn getmaskdata(pool: &sqlx::SqlitePool, dataset: &str, masks: bool, counties: &Counties<'_>, first_date: i32, last_date: i32) -> HashMap<i32, f64> {
+        sqlx::query_as::<_, (i32, i64)>(makemasksstr("nytimes/us-counties", masks, counties).as_str())
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool).
+        await.unwrap()
+             .into_iter().map(|(x, y)| (x, y as f64))
+             .collect()
 }
