@@ -139,7 +139,7 @@ async fn main() {
     charts::writecounties_100k(
         "images/counties-100k-nyt.html",
         &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (NYT)",
+        "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
         &vec!["Marion", "McPherson", "Harvey", "Saline", "Sedgwick"],
         &nytbycounty100k,
@@ -150,7 +150,7 @@ async fn main() {
     charts::writecounties_100k(
         "images/counties-100k-limited-nyt.html",
         &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (NYT)",
+        "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
         &vec!["Marion", "Harvey", "Sedgwick"],
         &nytbycounty100k,
