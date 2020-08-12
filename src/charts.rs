@@ -21,31 +21,42 @@ use crate::arecord::ARecord;
 use chrono::{offset::TimeZone, Date, NaiveDate, Utc};
 use plotters::prelude::*;
 use std::collections::HashMap;
-use std::ops::Range;
+use std::ops::{Bound, RangeBounds};
 
-fn n2d(naive: &NaiveDate) -> Date<Utc> {
-    Utc.from_utc_date(naive)
-}
+use covid19db::dateutil::*;
 
-pub fn write(&ARecord) -> f64>(
+pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
     filename: &str,
     title: &str,
     yaxis: &str,
     ymin: f64,
     ymax: f64,
-    masks: &Vec<i32, f64>,
-    nomasks: &Vec<i32, f64>,
-    datelist: &Range
+    masks: &HashMap<i32, f64>,
+    nomasks: &HashMap<i32, f64>,
+    datelist: &T
 ) {
+    let firstdate = match datelist.start_bound() {
+        Bound::Included(t) => *t,
+        Bound::Excluded(t) => *t + 1,
+        Bound::Unbounded => panic!("Unbounded date range not supported"),
+    };
+    let lastdate = match datelist.end_bound() {
+        Bound::Included(t) => *t,
+        Bound::Excluded(t) => *t - 1,
+        Bound::Unbounded => panic!("Unbounded date range not supported"),
+    };
+
+   
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
+    // FIXME: the .. below should be ..=
     let mut chart = ChartBuilder::on(&root)
         .x_label_area_size(40)
         .y_label_area_size(50)
         .margin(5)
         .caption(title, ("sans-serif", 50.0).into_font())
-        .build_ranged(n2d(&datelist[0])..n2d(datelist.last().unwrap()), ymin..ymax)
+        .build_ranged(day_to_dateutc(firstdate)..day_to_dateutc(lastdate), ymin..ymax)
         .unwrap();
 
     chart
@@ -55,15 +66,16 @@ pub fn write(&ARecord) -> f64>(
         .draw()
         .expect("draw");
 
-    let masksday0 = func(masks.get(&datelist[0]).unwrap());
-    let nomasksday0 = func(nomasks.get(&datelist[0]).unwrap());
+    let masksday0 = masks.get(&firstdate).expect("Can't find first value");
+    let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
 
     chart
         .draw_series(LineSeries::new(
-            datelist
-                .iter()
-                .map(|d| (n2d(d), 100f64 * func(masks.get(d).unwrap()) / masksday0)),
-            &RED,
+            datelist.clone()
+                .into_iter()
+                .filter_map(|d| masks.get(&d).map(|x| (d, x)))
+                .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / masksday0)),
+            &RED
         ))
         .unwrap()
         .label("Masks")
@@ -71,9 +83,10 @@ pub fn write(&ARecord) -> f64>(
 
     chart
         .draw_series(LineSeries::new(
-            datelist
-                .iter()
-                .map(|d| (n2d(d), 100f64 * func(nomasks.get(d).unwrap()) / nomasksday0)),
+            datelist.clone()
+                .into_iter()
+                .filter_map(|d| nomasks.get(&d).map(|x| (d, x)))
+                .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / nomasksday0)),
             &BLUE,
         ))
         .unwrap()
@@ -88,6 +101,7 @@ pub fn write(&ARecord) -> f64>(
         .unwrap();
 }
 
+/*
 pub fn writecounties<F>(
     filename: &str,
     func: F,
@@ -147,3 +161,4 @@ pub fn writecounties<F>(
         .draw()
         .unwrap();
 }
+*/

@@ -22,17 +22,21 @@ use chrono::naive::NaiveDate;
 use std::collections::HashMap;
 
 /// Populate the simple moving average in the second element of the list, modifying it in-place.
-pub fn calcsimplema<T>(list: &mut Vec<(T, f64)>, window: usize) {
+pub fn calcsimplema(hm: &mut HashMap<i32, f64>, window: usize) {
     let mut history: Vec<f64> = Vec::new();
-    for item in list.iter_mut() {
-        history.push(item.1);
+    let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
+    keys.sort();
+    for key in keys.into_iter() {
+        let entry = hm.get_mut(&key).unwrap();
+        history.push(*entry);
         if history.len() > window {
             history.remove(0);
         }
-        item.1 = history.iter().sum::<f64>() / (window as f64);
+        *entry = history.iter().sum::<f64>() / (window as f64);
     }
 }
 
+/*
 /// Populate the moving average in the hashmap.  Must be done after setnew
 pub fn setnewavg(hm: &mut HashMap<NaiveDate, ARecord>, datelist: &Vec<NaiveDate>, window: u32) {
     for item in datelist {
@@ -122,3 +126,4 @@ pub fn separate(
 
     (maskshm, nomaskshm)
 }
+*/

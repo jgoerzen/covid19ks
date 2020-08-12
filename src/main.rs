@@ -24,6 +24,7 @@ use sqlx::prelude::*;
 use sqlx::sqlite::SqlitePool;
 use covid19db::dateutil::*;
 use chrono::{Date, Utc};
+use std::collections::HashMap;
 
 mod counties;
 mod analysis;
@@ -48,7 +49,7 @@ async fn main() {
     let data_first_date = ymd_to_day(2020, 5, 29);
     let data_last_date = ymd_to_day(2020, 8, 9);
 
-    let daterange_optout = first_date..=last_date;
+    let daterange_output = first_date..=last_date;
     let daterange_full = data_first_date..=data_last_date;
     let daterange_updates = first_date..data_last_date;
 
@@ -70,10 +71,10 @@ async fn main() {
     ]);
 
     let filename = match get_nth_arg(1) {
-        Ok(x) => x.to_str().unwrap(),
+        Ok(x) => String::from(x.to_str().unwrap()),
         Err(_) => {
             println!("Database file not specified; trying covid19.db in current directory");
-           "covid19.db"
+           String::from("covid19.db")
         } };
 
 
@@ -83,35 +84,34 @@ async fn main() {
         .await
         .expect("Error building");
 
-    let mut nytmasks: Vec<(Date<Utc>, f64)> =
+    let mut nytmasks: HashMap<i32, f64> =
         sqlx::query_as::<_, (i32, i64)>(db::makemasksstr("nytimes/us-counties", true, &maskcounties).as_str())
         .bind(data_first_date)
         .bind(data_last_date)
         .fetch_all(&pool).
         await.unwrap()
-             .into_iter().map(|(x, y)| (day_to_dateutc(x), y as f64))
+             .into_iter().map(|(x, y)| (x, y as f64))
              .collect();
     analysis::calcsimplema(&mut nytmasks, 7);
-    let mut nytnomasks: Vec<(Date<Utc>, f64)> =
+    let mut nytnomasks: HashMap<i32, f64> =
         sqlx::query_as::<_, (i32, i64)>(db::makemasksstr("nytimes/us-counties", false, &maskcounties).as_str())
         .bind(data_first_date)
         .bind(data_last_date)
         .fetch_all(&pool).
         await.unwrap()
-             .into_iter().map(|(x, y)| (day_to_dateutc(x), y as f64))
+             .into_iter().map(|(x, y)| (x, y as f64))
              .collect();
     analysis::calcsimplema(&mut nytnomasks, 7);
 
     charts::write(
         "main.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
         130f64,
         &nytmasks,
         &nytnomasks,
-        &datelist_output,
+        &daterange_output,
     );
     /*
 
