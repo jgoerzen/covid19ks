@@ -90,6 +90,41 @@ async fn main() {
         .await
         .expect("Error building");
 
+    let mut nytmasks = db::getmask100kdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        true,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    let mut nytnomasks = db::getmask100kdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        false,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+
+    analysis::calcsimplema(&mut nytmasks, 7);
+    analysis::calcsimplema(&mut nytnomasks, 7);
+
+    charts::write_generic(
+        "images/main-pop100k-nyt.html",
+        &mut bightml,
+        "COVID-19: Masks vs no-mask counties, KS (NYT)",
+        "7-day moving average of new cases per 100,000 population",
+        vec![("Masks", &nytmasks), ("No masks", &nytnomasks)],
+        first_date,
+        data_last_date,
+    );
+
+    //////////////////  Percentage
     let mut nytmasks = db::getmaskdata(
         &pool,
         "nytimes/us-counties",

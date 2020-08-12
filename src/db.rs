@@ -38,6 +38,24 @@ pub fn makemasksstr(
     )
 }
 
+pub fn makemasks100kstr(
+    dataset: &str,
+    mainfield: &str,
+    masks: bool,
+    counties: &Counties<'_>,
+) -> String {
+    format!(
+        "SELECT date_julian, 100000 * SUM({}) / SUM(factbook_population) FROM cdataset
+            WHERE dataset = '{}' AND province = 'Kansas'
+                  AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
+            GROUP BY date_julian ORDER BY date_julian",
+        mainfield,
+        dataset,
+        if masks { "" } else { "not" },
+        counties.sqlclause().as_str()
+    )
+}
+
 /// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to given field
 pub async fn getmaskdata(
     pool: &sqlx::SqlitePool,
@@ -49,6 +67,29 @@ pub async fn getmaskdata(
     last_date: i32,
 ) -> HashMap<i32, f64> {
     let query = makemasksstr(dataset, field, masks, counties);
+    println!("{}", query);
+    sqlx::query_as::<_, (i32, i64)>(query.as_str())
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .map(|(x, y)| (x, y as f64))
+        .collect()
+}
+
+/// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to given field
+pub async fn getmask100kdata(
+    pool: &sqlx::SqlitePool,
+    dataset: &str,
+    field: &str,
+    masks: bool,
+    counties: &Counties<'_>,
+    first_date: i32,
+    last_date: i32,
+) -> HashMap<i32, f64> {
+    let query = makemasks100kstr(dataset, field, masks, counties);
     println!("{}", query);
     sqlx::query_as::<_, (i32, i64)>(query.as_str())
         .bind(first_date)
