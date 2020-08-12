@@ -19,6 +19,8 @@ Copyright (c) 2020 John Goerzen
 
 use plotters::prelude::*;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Write;
 
 use covid19db::dateutil::*;
 
@@ -44,6 +46,7 @@ pub fn write(
 ) {
     let masksday0 = masks.get(&firstdate).expect("Can't find first value");
     let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
+    /*
 
     let tracemasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
                                   (firstdate..=lastdate).map(|x| 100f64 * masks.get(&x).unwrap() / masksday0))
@@ -63,12 +66,14 @@ pub fn write(
     plot.set_layout(layout);
     println!("Writing to {}", filename);
     // plot.show();
-    //plot.save(filename, ImageFormat::PNG, 1024, 768, 1.0);
-    plot.show_png(1024, 768);
+    // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
+    // plot.show_png(1024, 768);
+    plot.to_html(filename);
+
 }
 
+    */
 
-/*
 
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
@@ -120,7 +125,6 @@ pub fn write(
         .draw()
         .unwrap();
 }
-*/
 
 pub fn writecounties(
     filename: &str,
