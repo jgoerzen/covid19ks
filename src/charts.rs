@@ -118,3 +118,21 @@ pub fn writecounties(
 
     write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
 }
+
+pub fn writecounties_100k(
+    filename: &str,
+    bightml: &mut File,
+    title: &str,
+    yaxis: &str,
+    counties: &Vec<&str>,
+    bycounty: &HashMap<String, HashMap<i32, f64>>,
+    firstdate: i32,
+    lastdate: i32,
+) {
+    let series: Vec<(&str, &HashMap<i32, f64>)> = counties
+        .iter()
+        .map(|county| (*county, bycounty.get(&String::from(*county)).unwrap()))
+        .collect();
+
+    write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
+}

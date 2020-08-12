@@ -133,3 +133,35 @@ pub async fn getcountymaskdata(
         });
     hm
 }
+
+/// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
+pub async fn getcountymaskdata_100k(
+    pool: &sqlx::SqlitePool,
+    dataset: &str,
+    field: &str,
+    first_date: i32,
+    last_date: i32,
+) -> HashMap<String, HashMap<i32, f64>> {
+    let query = format!(
+        "SELECT administrative, date_julian, 100000 * SUM({}) / SUM(factbook_population) FROM cdataset
+            WHERE dataset = '{}' AND province = 'Kansas'
+                  AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
+            GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
+        field, dataset
+    );
+    let mut hm = HashMap::new();
+    println!("{}", query);
+    sqlx::query_as::<_, (String, i32, i64)>(query.as_str())
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .for_each(|(county, x, y)| {
+            hm.entry(county)
+                .or_insert(HashMap::new())
+                .insert(x, y as f64);
+        });
+    hm
+}

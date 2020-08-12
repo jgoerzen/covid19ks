@@ -111,8 +111,8 @@ async fn main() {
     )
     .await;
 
-    analysis::calcsimplema(&mut nytmasks, 7);
-    analysis::calcsimplema(&mut nytnomasks, 7);
+    nytmasks = analysis::calcsimplema(&nytmasks, 7);
+    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
 
     charts::write_generic(
         "images/main-pop100k-nyt.html",
@@ -123,6 +123,41 @@ async fn main() {
         first_date,
         data_last_date,
     );
+
+    let mut nytbycounty100k = db::getcountymaskdata_100k(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    for item in nytbycounty100k.values_mut() {
+        *item = analysis::calcsimplema(item, 7);
+    }
+
+    charts::writecounties_100k(
+        "images/counties-100k-nyt.html",
+        &mut bightml,
+        "COVID-19 cases in Selected Counties, Kansas (NYT)",
+        "7-day moving average of new cases per 100,000 population",
+        &vec!["Marion", "McPherson", "Harvey", "Saline", "Sedgwick"],
+        &nytbycounty100k,
+        first_date,
+        data_last_date,
+    );
+
+    charts::writecounties_100k(
+        "images/counties-100k-limited-nyt.html",
+        &mut bightml,
+        "COVID-19 cases in Selected Counties, Kansas (NYT)",
+        "7-day moving average of new cases per 100,000 population",
+        &vec!["Marion", "Harvey", "Sedgwick"],
+        &nytbycounty100k,
+        data_first_date,
+        data_last_date,
+    );
+
 
     //////////////////  Percentage
     let mut nytmasks = db::getmaskdata(
@@ -165,10 +200,10 @@ async fn main() {
         data_last_date,
     )
     .await;
-    analysis::calcsimplema(&mut jhumasks, 7);
-    analysis::calcsimplema(&mut nytnomasks, 7);
-    analysis::calcsimplema(&mut nytmasks, 7);
-    analysis::calcsimplema(&mut jhunomasks, 7);
+    jhumasks = analysis::calcsimplema(&jhumasks, 7);
+    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
+    nytmasks = analysis::calcsimplema(&nytmasks, 7);
+    jhunomasks = analysis::calcsimplema(&jhunomasks, 7);
 
     /*
     charts::write(
@@ -228,7 +263,7 @@ async fn main() {
         data_last_date,
     )
     .await;
-    analysis::calcsimplema(&mut nytmasks, 7);
+    nytmasks = analysis::calcsimplema(&nytmasks, 7);
     let mut nytnomasks = db::getmaskdata(
         &pool,
         "nytimes/us-counties",
@@ -239,7 +274,7 @@ async fn main() {
         data_last_date,
     )
     .await;
-    analysis::calcsimplema(&mut nytnomasks, 7);
+    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
     let mut jhumasks = db::getmaskdata(
         &pool,
         "jhu/daily",
@@ -250,7 +285,7 @@ async fn main() {
         data_last_date,
     )
     .await;
-    analysis::calcsimplema(&mut jhumasks, 7);
+    jhumasks = analysis::calcsimplema(&jhumasks, 7);
     let mut jhunomasks = db::getmaskdata(
         &pool,
         "jhu/daily",
@@ -261,7 +296,7 @@ async fn main() {
         data_last_date,
     )
     .await;
-    analysis::calcsimplema(&mut jhunomasks, 7);
+    jhunomasks = analysis::calcsimplema(&jhunomasks, 7);
 
     /*
     charts::write(
@@ -316,7 +351,7 @@ async fn main() {
     )
     .await;
     for item in nytbycounty.values_mut() {
-        analysis::calcsimplema(item, 7);
+        *item = analysis::calcsimplema(item, 7);
     }
     let mut jhubycounty = db::getcountymaskdata(
         &pool,
@@ -327,7 +362,7 @@ async fn main() {
     )
     .await;
     for item in jhubycounty.values_mut() {
-        analysis::calcsimplema(item, 7);
+        *item = analysis::calcsimplema(item, 7);
     }
     /*
     charts::writecounties(
