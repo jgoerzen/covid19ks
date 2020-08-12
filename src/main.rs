@@ -41,7 +41,7 @@ fn get_nth_arg(arg: usize) -> Result<OsString, Box<dyn Error>> {
 
 #[tokio::main]
 async fn main() {
-    let first_date = ymd_to_day(2020, 7, 12);
+    let first_date = ymd_to_day(2020, 7, 12);   // Dr. Norman's original chart used 2020-07-12
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
@@ -88,14 +88,15 @@ async fn main() {
         .expect("Error building");
 
     let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
-    analysis::calcsimplema(&mut nytmasks, 7);
     let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
-    analysis::calcsimplema(&mut nytnomasks, 7);
     let mut jhumasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
-    analysis::calcsimplema(&mut jhumasks, 7);
     let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut jhumasks, 7);
+    analysis::calcsimplema(&mut nytnomasks, 7);
+    analysis::calcsimplema(&mut nytmasks, 7);
     analysis::calcsimplema(&mut jhunomasks, 7);
 
+    /*
     charts::write(
         "images/main-nyt.html",
         &mut bightml,
@@ -117,6 +118,7 @@ async fn main() {
         first_date,
         last_date,
     );
+    */
 
     charts::write(
         "images/main-updated-nyt.html",
@@ -151,6 +153,7 @@ async fn main() {
     let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_deaths", false, &maskcounties, data_first_date, data_last_date).await;
     analysis::calcsimplema(&mut jhunomasks, 7);
 
+    /*
     charts::write(
         "images/deaths-nyt.html",
         &mut bightml,
@@ -170,7 +173,7 @@ async fn main() {
         &jhunomasks,
         first_date,
         last_date
-    );
+    ); */
     charts::write(
         "images/deaths-updated-nyt.html",
         &mut bightml,
@@ -202,6 +205,7 @@ async fn main() {
     for item in jhubycounty.values_mut() {
         analysis::calcsimplema(item, 7);
     }
+    /*
     charts::writecounties(
         "images/counties-nyt.html",
         &mut bightml,
@@ -222,6 +226,7 @@ async fn main() {
         first_date,
         last_date,
     );
+    */
     charts::writecounties(
         "images/counties-updated-nyt.html",
         &mut bightml,
