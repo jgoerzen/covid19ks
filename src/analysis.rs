@@ -33,3 +33,22 @@ pub fn calcsimplema(hm: &mut HashMap<i32, f64>, window: usize) {
         *entry = history.iter().sum::<f64>() / (window as f64);
     }
 }
+
+/// untested
+pub fn calcweightedma(hm: &mut HashMap<i32, f64>, window: usize) {
+    let mut history: Vec<f64> = Vec::new();
+    let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
+    keys.sort();
+    for key in keys.into_iter() {
+        let entry = hm.get_mut(&key).unwrap();
+        history.push(*entry);
+        if history.len() > window {
+            history.remove(0);
+        }
+        let mut sum = 0.0;
+        for (item, index) in history.iter().zip(1..) {
+            sum += item * (index as f64);
+        }
+        *entry = sum / ((history.len() * (history.len() + 1)) as f64 / 2.0)
+    }
+}
