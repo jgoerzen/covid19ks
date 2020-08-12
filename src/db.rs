@@ -45,7 +45,7 @@ pub fn makemasks100kstr(
     counties: &Counties<'_>,
 ) -> String {
     format!(
-        "SELECT date_julian, 100000 * SUM({}) / SUM(factbook_population) FROM cdataset
+        "SELECT date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
             WHERE dataset = '{}' AND province = 'Kansas'
                   AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
             GROUP BY date_julian ORDER BY date_julian",
@@ -91,14 +91,13 @@ pub async fn getmask100kdata(
 ) -> HashMap<i32, f64> {
     let query = makemasks100kstr(dataset, field, masks, counties);
     println!("{}", query);
-    sqlx::query_as::<_, (i32, i64)>(query.as_str())
+    sqlx::query_as::<_, (i32, f64)>(query.as_str())
         .bind(first_date)
         .bind(last_date)
         .fetch_all(pool)
         .await
         .unwrap()
         .into_iter()
-        .map(|(x, y)| (x, y as f64))
         .collect()
 }
 
@@ -143,7 +142,7 @@ pub async fn getcountymaskdata_100k(
     last_date: i32,
 ) -> HashMap<String, HashMap<i32, f64>> {
     let query = format!(
-        "SELECT administrative, date_julian, 100000 * SUM({}) / SUM(factbook_population) FROM cdataset
+        "SELECT administrative, date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
             WHERE dataset = '{}' AND province = 'Kansas'
                   AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
             GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
@@ -151,7 +150,7 @@ pub async fn getcountymaskdata_100k(
     );
     let mut hm = HashMap::new();
     println!("{}", query);
-    sqlx::query_as::<_, (String, i32, i64)>(query.as_str())
+    sqlx::query_as::<_, (String, i32, f64)>(query.as_str())
         .bind(first_date)
         .bind(last_date)
         .fetch_all(pool)
@@ -161,7 +160,7 @@ pub async fn getcountymaskdata_100k(
         .for_each(|(county, x, y)| {
             hm.entry(county)
                 .or_insert(HashMap::new())
-                .insert(x, y as f64);
+                .insert(x, y);
         });
     hm
 }

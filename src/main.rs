@@ -136,6 +136,7 @@ async fn main() {
         *item = analysis::calcsimplema(item, 7);
     }
 
+    /*
     charts::writecounties_100k(
         "images/counties-100k-nyt.html",
         &mut bightml,
@@ -146,9 +147,10 @@ async fn main() {
         first_date,
         data_last_date,
     );
+    */
 
     charts::writecounties_100k(
-        "images/counties-100k-limited-nyt.html",
+        "images/counties-100k-nyt.html",
         &mut bightml,
         "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
@@ -158,7 +160,34 @@ async fn main() {
         data_last_date,
     );
 
+
+    ////////////////////// DEATHS
+
+    let mut nytbycounty100k = db::getcountymaskdata_100k(
+        &pool,
+        "nytimes/us-counties",
+        "delta_deaths",
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    for item in nytbycounty100k.values_mut() {
+        *item = analysis::calcsimplema(item, 7);
+    }
+    charts::writecounties_100k(
+        "images/counties-100k-deaths-nyt.html",
+        &mut bightml,
+        "COVID-19 deaths in Selected Counties, Kansas (NYT)",
+        "7-day moving average of new cases per 100,000 population",
+        &vec!["Marion", "Harvey", "Sedgwick"],
+        &nytbycounty100k,
+        data_first_date,
+        data_last_date,
+    );
+
+
     //////////////////  Percentage
+    /*
     let mut nytmasks = db::getmaskdata(
         &pool,
         "nytimes/us-counties",
@@ -204,6 +233,7 @@ async fn main() {
     nytmasks = analysis::calcsimplema(&nytmasks, 7);
     jhunomasks = analysis::calcsimplema(&jhunomasks, 7);
 
+    */
     /*
     charts::write(
         "images/main-nyt.html",
@@ -227,6 +257,7 @@ async fn main() {
         last_date,
     );
     */
+    /*
 
     charts::write(
         "images/main-updated-nyt.html",
@@ -363,6 +394,7 @@ async fn main() {
     for item in jhubycounty.values_mut() {
         *item = analysis::calcsimplema(item, 7);
     }
+    */
     /*
     charts::writecounties(
         "images/counties-nyt.html",
@@ -385,6 +417,7 @@ async fn main() {
         last_date,
     );
     */
+    /*
     charts::writecounties(
         "images/counties-updated-nyt.html",
         &mut bightml,
@@ -405,4 +438,5 @@ async fn main() {
         first_date,
         data_last_date,
     );
+    */
 }
