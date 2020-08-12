@@ -19,11 +19,10 @@ Copyright (c) 2020 John Goerzen
 
 use plotters::prelude::*;
 use std::collections::HashMap;
-use std::ops::{Bound, RangeBounds};
 
 use covid19db::dateutil::*;
 
-pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
+pub fn write(
     filename: &str,
     title: &str,
     yaxis: &str,
@@ -31,20 +30,9 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
     ymax: f64,
     masks: &HashMap<i32, f64>,
     nomasks: &HashMap<i32, f64>,
-    datelist: &T
+    firstdate: i32,
+    lastdate: i32,
 ) {
-    let firstdate = match datelist.start_bound() {
-        Bound::Included(t) => *t,
-        Bound::Excluded(t) => *t + 1,
-        Bound::Unbounded => panic!("Unbounded date range not supported"),
-    };
-    let lastdate = match datelist.end_bound() {
-        Bound::Included(t) => *t,
-        Bound::Excluded(t) => *t - 1,
-        Bound::Unbounded => panic!("Unbounded date range not supported"),
-    };
-
-   
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
@@ -54,7 +42,7 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
         .y_label_area_size(50)
         .margin(5)
         .caption(title, ("sans-serif", 50.0).into_font())
-        .build_ranged(day_to_dateutc(firstdate)..day_to_dateutc(lastdate), ymin..ymax)
+        .build_ranged(day_to_dateutc(firstdate)..(day_to_dateutc(lastdate)), ymin..ymax)
         .unwrap();
 
     chart
@@ -69,7 +57,7 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
 
     chart
         .draw_series(LineSeries::new(
-            datelist.clone()
+            (firstdate..=lastdate)
                 .into_iter()
                 .filter_map(|d| masks.get(&d).map(|x| (d, x)))
                 .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / masksday0)),
@@ -81,7 +69,7 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
 
     chart
         .draw_series(LineSeries::new(
-            datelist.clone()
+            (firstdate..=lastdate)
                 .into_iter()
                 .filter_map(|d| nomasks.get(&d).map(|x| (d, x)))
                 .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / nomasksday0)),
@@ -99,7 +87,7 @@ pub fn write<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
         .unwrap();
 }
 
-pub fn writecounties<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
+pub fn writecounties(
     filename: &str,
     title: &str,
     yaxis: &str,
@@ -107,20 +95,10 @@ pub fn writecounties<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
     ymax: f64,
     counties: &Vec<&str>,
     bycounty: &HashMap<String, HashMap<i32, f64>>,
-    datelist: &T,
+    firstdate: i32,
+    lastdate: i32
 )
 {
-    let firstdate = match datelist.start_bound() {
-        Bound::Included(t) => *t,
-        Bound::Excluded(t) => *t + 1,
-        Bound::Unbounded => panic!("Unbounded date range not supported"),
-    };
-    let lastdate = match datelist.end_bound() {
-        Bound::Included(t) => *t,
-        Bound::Excluded(t) => *t - 1,
-        Bound::Unbounded => panic!("Unbounded date range not supported"),
-    };
-
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
@@ -148,7 +126,7 @@ pub fn writecounties<T: Clone + RangeBounds<i32> + IntoIterator<Item = i32>>(
 
         chart
             .draw_series(LineSeries::new(
-                datelist.clone()
+                (firstdate..=lastdate)
                     .into_iter()
                     .filter_map(|d| data.get(&d).map(|x| (d, x)))
                     .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / day0)),

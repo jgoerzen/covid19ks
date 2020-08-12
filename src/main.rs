@@ -45,9 +45,9 @@ async fn main() {
     let data_first_date = ymd_to_day(2020, 5, 29);
     let data_last_date = ymd_to_day(2020, 8, 10);
 
-    let daterange_output = first_date..=last_date;
-    let daterange_full = data_first_date..=data_last_date;
-    let daterange_updated = first_date..data_last_date;
+    let _daterange_output = first_date..=last_date;
+    let _daterange_full = data_first_date..=data_last_date;
+    let _daterange_updated = first_date..data_last_date;
 
     // Source: https://www.kansas.com/news/politics-government/article244091222.html
     let maskcounties = counties::Counties::new(vec![
@@ -100,7 +100,8 @@ async fn main() {
         130f64,
         &nytmasks,
         &nytnomasks,
-        &daterange_output,
+        first_date,
+        last_date
     );
 
     charts::write(
@@ -111,7 +112,8 @@ async fn main() {
         150f64,
         &jhumasks,
         &jhunomasks,
-        &daterange_output,
+        first_date,
+        last_date,
     );
 
     charts::write(
@@ -122,7 +124,8 @@ async fn main() {
         130f64,
         &nytmasks,
         &nytnomasks,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
 
     charts::write(
@@ -133,7 +136,8 @@ async fn main() {
         150f64,
         &jhumasks,
         &jhunomasks,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
 
     ////////////// Replace the in-ram data with the deaths data.
@@ -155,7 +159,8 @@ async fn main() {
         400f64,
         &nytmasks,
         &nytnomasks,
-        &daterange_output,
+        first_date,
+        last_date,
     );
     charts::write(
         "images/deaths-jhu.png",
@@ -165,7 +170,8 @@ async fn main() {
         400f64,
         &jhumasks,
         &jhunomasks,
-        &daterange_output,
+        first_date,
+        last_date
     );
     charts::write(
         "images/deaths-updated-nyt.png",
@@ -175,7 +181,8 @@ async fn main() {
         400f64,
         &nytmasks,
         &nytnomasks,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
     charts::write(
         "images/deaths-updated-jhu.png",
@@ -185,7 +192,8 @@ async fn main() {
         400f64,
         &jhumasks,
         &jhunomasks,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
 
     /////////////////// Counties
@@ -206,7 +214,8 @@ async fn main() {
         200f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &nytbycounty,
-        &daterange_output,
+        first_date,
+        last_date,
     );
     charts::writecounties(
         "images/counties-jhu.png",
@@ -216,7 +225,8 @@ async fn main() {
         300f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &jhubycounty,
-        &daterange_output,
+        first_date,
+        last_date,
     );
     charts::writecounties(
         "images/counties-updated-nyt.png",
@@ -226,7 +236,8 @@ async fn main() {
         200f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &nytbycounty,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
     charts::writecounties(
         "images/counties-updated-jhu.png",
@@ -236,6 +247,7 @@ async fn main() {
         400f64,
         &vec!["Marion", "McPherson", "Harvey", "Saline"],
         &jhubycounty,
-        &daterange_updated,
+        first_date,
+        data_last_date,
     );
 }
