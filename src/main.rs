@@ -158,7 +158,6 @@ async fn main() {
         data_last_date,
     );
 
-
     //////////////////  Percentage
     let mut nytmasks = db::getmaskdata(
         &pool,
