@@ -42,3 +42,12 @@ impl<'a> DB<'a> {
         self.query_as(format!("{} in ({}) {}", query, self.maskcounties.sqlclause(), query2).as_str()).await
     }
 }
+
+pub fn makemasksstr(dataset: &str, masks: bool, counties: &Counties<'_>) -> String {
+    format!("SELECT date_julian, SUM(delta_confirmed) FROM cdataset
+            WHERE dataset = '{}' AND province = 'Kansas'
+                  AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
+            GROUP BY date_julian ORDER BY date_julian",
+            dataset, if masks { "" } else { "not" },
+            counties.sqlclause().as_str())
+}

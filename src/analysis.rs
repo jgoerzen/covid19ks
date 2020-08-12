@@ -21,24 +21,16 @@ use crate::arecord::ARecord;
 use chrono::naive::NaiveDate;
 use std::collections::HashMap;
 
-/// Returns all dates in the inclusive range.
-pub fn alldates(first_date: &NaiveDate, last_date: &NaiveDate) -> Vec<NaiveDate> {
-    let mut date = first_date.clone();
-    let mut retval = Vec::new();
-    while date <= *last_date {
-        retval.push(date);
-        date = date.succ();
+/// Populate the simple moving average in the second element of the list, modifying it in-place.
+pub fn calcsimplema<T>(list: &mut Vec<(T, f64)>, window: usize) {
+    let mut history: Vec<f64> = Vec::new();
+    for item in list.iter_mut() {
+        history.push(item.1);
+        if history.len() > window {
+            history.remove(0);
+        }
+        item.1 = history.iter().sum::<f64>() / (window as f64);
     }
-    retval
-}
-
-/// Initialize the hashmap
-pub fn newhashmap(datelist: &Vec<NaiveDate>) -> HashMap<NaiveDate, ARecord> {
-    let mut retval = HashMap::new();
-    for item in datelist {
-        retval.insert(item.clone(), ARecord::default());
-    }
-    retval
 }
 
 /// Populate the moving average in the hashmap.  Must be done after setnew

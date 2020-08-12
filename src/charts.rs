@@ -21,21 +21,21 @@ use crate::arecord::ARecord;
 use chrono::{offset::TimeZone, Date, NaiveDate, Utc};
 use plotters::prelude::*;
 use std::collections::HashMap;
+use std::ops::Range;
 
 fn n2d(naive: &NaiveDate) -> Date<Utc> {
     Utc.from_utc_date(naive)
 }
 
-pub fn write<F: Fn(&ARecord) -> f64>(
+pub fn write(&ARecord) -> f64>(
     filename: &str,
-    func: F,
     title: &str,
     yaxis: &str,
     ymin: f64,
     ymax: f64,
-    masks: &HashMap<NaiveDate, ARecord>,
-    nomasks: &HashMap<NaiveDate, ARecord>,
-    datelist: &Vec<NaiveDate>,
+    masks: &Vec<i32, f64>,
+    nomasks: &Vec<i32, f64>,
+    datelist: &Range
 ) {
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();

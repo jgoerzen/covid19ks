@@ -30,6 +30,6 @@ impl<'a> Counties<'a> {
 
     /// Return a SQL "where" clause for this list of counties.
     pub fn sqlclause(&self) -> String {
-        format!("({})", self.clist.join(", "))
+        format!("({})", self.clist.iter().map(|x| format!("'{}'", x)).collect::<Vec<String>>().join(", "))
     }
 }
