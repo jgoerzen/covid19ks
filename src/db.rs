@@ -16,33 +16,9 @@ Copyright (c) 2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use covid19db::dateutil::*;
-use chrono::NaiveDate;
 use sqlx::prelude::*;
-use sqlx::sqlite::SqliteRow;
 use crate::counties::Counties;
 use std::collections::HashMap;
-
-pub struct DB<'a> {
-    pub pool: &'a mut sqlx::SqlitePool,
-    pub maskcounties: Counties<'a>,
-}
-
-impl<'a> DB<'a> {
-    pub fn new(pool: &'a mut sqlx::SqlitePool, maskcounties: Counties<'a>) -> DB<'a> {
-        DB{pool, maskcounties}
-    }
-
-    pub async fn query_as<T: Send + for<'d> FromRow<'d, SqliteRow<'d>>>(&self, query: &str) -> Vec<T> {
-        sqlx::query_as::<_, T>(query)
-            .fetch_all(&mut self.pool.acquire().await.unwrap()).await.unwrap()
-    }
-
-    /// Takes a SELECT statement ending in WHERE, inserts masks clause between the first and second parts
-    pub async fn query_as_masks<T: Send + for<'d> FromRow<'d, SqliteRow<'d>>>(&self, query: &str, query2: &str) -> Vec<T> {
-        self.query_as(format!("{} in ({}) {}", query, self.maskcounties.sqlclause(), query2).as_str()).await
-    }
-}
 
 pub fn makemasksstr(dataset: &str, mainfield: &str, masks: bool, counties: &Counties<'_>) -> String {
     format!("SELECT date_julian, SUM({}) FROM cdataset

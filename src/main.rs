@@ -16,20 +16,15 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use chrono::naive::NaiveDate;
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
-use sqlx::prelude::*;
 use sqlx::sqlite::SqlitePool;
 use covid19db::dateutil::*;
-use chrono::{Date, Utc};
-use std::collections::HashMap;
 use std::path::Path;
 
 mod counties;
 mod analysis;
-mod arecord;
 mod charts;
 mod db;
 
