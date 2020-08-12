@@ -44,10 +44,17 @@ pub fn write_generic(
 ) {
 
     let mut plot = Plot::new();
+
+    // See https://plotly.com/python/reference/scatter/#scatter-line-smoothing for smoothing
+    // this line is unnecessary when not using it.
+    let line = Line::new()
+        .shape(LineShape::Spline)
+        .smoothing(1.0);
     for (label, data) in series {
         let trace = Scatter::new((firstdate..=lastdate).map(day_to_nd),
                                  (firstdate..=lastdate).map(|x| data.get(&x).unwrap().clone() ))
             .mode(Mode::Lines)
+            .line(line.clone()) // only needed for smoothing
             .name(label);
         plot.add_trace(trace);
     }
