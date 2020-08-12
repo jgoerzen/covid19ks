@@ -48,7 +48,7 @@ async fn main() {
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
-    let data_last_date = ymd_to_day(2020, 8, 7);
+    let data_last_date = ymd_to_day(2020, 8, 10);
 
     let daterange_output = first_date..=last_date;
     let daterange_full = data_first_date..=data_last_date;

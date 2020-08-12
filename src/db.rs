@@ -44,18 +44,20 @@ impl<'a> DB<'a> {
     }
 }
 
-pub fn makemasksstr(dataset: &str, masks: bool, counties: &Counties<'_>) -> String {
-    format!("SELECT date_julian, SUM(delta_confirmed) FROM cdataset
+pub fn makemasksstr(dataset: &str, field: &str, masks: bool, counties: &Counties<'_>) -> String {
+    format!("SELECT date_julian, SUM({}) FROM cdataset
             WHERE dataset = '{}' AND province = 'Kansas'
                   AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
             GROUP BY date_julian ORDER BY date_julian",
-            dataset, if masks { "" } else { "not" },
+            field, dataset, if masks { "" } else { "not" },
             counties.sqlclause().as_str())
 }
 
 /// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to delta_confirmed
 pub async fn getmaskdata(pool: &sqlx::SqlitePool, dataset: &str, field: &str, masks: bool, counties: &Counties<'_>, first_date: i32, last_date: i32) -> HashMap<i32, f64> {
-        sqlx::query_as::<_, (i32, i64)>(makemasksstr("nytimes/us-counties", masks, counties).as_str())
+    let query = makemasksstr(dataset, field, masks, counties);
+    println!("{}", query);
+        sqlx::query_as::<_, (i32, i64)>(query.as_str())
         .bind(first_date)
         .bind(last_date)
         .fetch_all(pool).
