@@ -54,7 +54,7 @@ pub fn makemasksstr(dataset: &str, masks: bool, counties: &Counties<'_>) -> Stri
 }
 
 /// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to delta_confirmed
-pub async fn getmaskdata(pool: &sqlx::SqlitePool, dataset: &str, masks: bool, counties: &Counties<'_>, first_date: i32, last_date: i32) -> HashMap<i32, f64> {
+pub async fn getmaskdata(pool: &sqlx::SqlitePool, dataset: &str, field: &str, masks: bool, counties: &Counties<'_>, first_date: i32, last_date: i32) -> HashMap<i32, f64> {
         sqlx::query_as::<_, (i32, i64)>(makemasksstr("nytimes/us-counties", masks, counties).as_str())
         .bind(first_date)
         .bind(last_date)

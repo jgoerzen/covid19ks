@@ -48,11 +48,11 @@ async fn main() {
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
-    let data_last_date = ymd_to_day(2020, 8, 9);
+    let data_last_date = ymd_to_day(2020, 8, 7);
 
     let daterange_output = first_date..=last_date;
     let daterange_full = data_first_date..=data_last_date;
-    let daterange_updates = first_date..data_last_date;
+    let daterange_updated = first_date..data_last_date;
 
     // Source: https://www.kansas.com/news/politics-government/article244091222.html
     let maskcounties = counties::Counties::new(vec![
@@ -88,11 +88,14 @@ async fn main() {
         .await
         .expect("Error building");
 
-    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", true, &maskcounties, data_first_date, data_last_date).await;
+    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
     analysis::calcsimplema(&mut nytmasks, 7);
-    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", false, &maskcounties, data_first_date, data_last_date).await;
+    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
     analysis::calcsimplema(&mut nytnomasks, 7);
-
+    let mut jhumasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut jhumasks, 7);
+    let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut jhunomasks, 7);
 
     charts::write(
         "main.png",
@@ -104,85 +107,92 @@ async fn main() {
         &nytnomasks,
         &daterange_output,
     );
-    /*
 
     charts::write(
         "images/main-jhu.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
         150f64,
         &jhumasks,
         &jhunomasks,
-        &datelist_output,
+        &daterange_output,
     );
+
     charts::write(
         "images/main-updated-nyt.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
         130f64,
         &nytmasks,
         &nytnomasks,
-        &datelist_updated,
+        &daterange_updated,
     );
+
     charts::write(
         "images/main-updated-jhu.png",
-        arecord::ARecord::getnewcaseavg,
         "COVID-19: Masks vs no-mask counties, KS",
         "7-day moving average of new cases, % relative to July 12",
         60f64,
         150f64,
         &jhumasks,
         &jhunomasks,
-        &datelist_updated,
+        &daterange_updated,
     );
+
+    ////////////// Replace the in-ram data with the deaths data.
+
+    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_deaths", true, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut nytmasks, 7);
+    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_deaths", false, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut nytnomasks, 7);
+    let mut jhumasks = db::getmaskdata(&pool, "jhu/daily", "delta_deaths", true, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut jhumasks, 7);
+    let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_deaths", false, &maskcounties, data_first_date, data_last_date).await;
+    analysis::calcsimplema(&mut jhunomasks, 7);
+
     charts::write(
         "images/deaths-nyt.png",
-        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
         400f64,
         &nytmasks,
         &nytnomasks,
-        &datelist_output,
+        &daterange_output,
     );
     charts::write(
         "images/deaths-jhu.png",
-        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
         400f64,
         &jhumasks,
         &jhunomasks,
-        &datelist_output,
+        &daterange_output,
     );
     charts::write(
         "images/deaths-updated-nyt.png",
-        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
         400f64,
         &nytmasks,
         &nytnomasks,
-        &datelist_updated,
+        &daterange_updated,
     );
     charts::write(
         "images/deaths-updated-jhu.png",
-        arecord::ARecord::getnewdeathavg,
         "COVID-19 deaths: Mask vs no-mask",
         "7-day moving average of new deaths, % relative to July 12",
         20f64,
         400f64,
         &jhumasks,
         &jhunomasks,
-        &datelist_updated,
+        &daterange_updated,
     );
+    /*
     charts::writecounties(
         "counties.png",
         arecord::ARecord::getnewcaseavg,
