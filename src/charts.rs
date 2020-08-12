@@ -84,60 +84,33 @@ pub fn write(
 
 pub fn writecounties(
     filename: &str,
+    bightml: &mut File,
     title: &str,
     yaxis: &str,
-    ymin: f64,
-    ymax: f64,
     counties: &Vec<&str>,
     bycounty: &HashMap<String, HashMap<i32, f64>>,
     firstdate: i32,
     lastdate: i32
 )
 {
-    let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
-    root.fill(&WHITE).unwrap();
+    let countypcts: Vec<HashMap<i32, f64>> = counties.iter().map(|county|
+                                                                 analysis::pctofday0(bycounty.get(&String::from(*county)).expect("Can't find county"), firstdate)).collect();
+    let series: Vec<(&str, &HashMap<i32, f64>)> =
+        counties
+        .iter()
+        .zip(countypcts.iter())
+        .map(|(county, pct)| (*county, pct))
+        .collect();
 
-    let mut chart = ChartBuilder::on(&root)
-        .x_label_area_size(40)
-        .y_label_area_size(50)
-        .margin(5)
-        .caption(title, ("sans-serif", 50.0).into_font())
-        .build_ranged(day_to_dateutc(firstdate)..day_to_dateutc(lastdate), ymin..ymax)
-        .unwrap();
 
-    chart
-        .configure_mesh()
-        .line_style_2(&WHITE)
-        .y_desc(yaxis)
-        .draw()
-        .expect("draw");
+    write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
 
-    let mut idx = 0;
 
-    for county in counties {
-        let data = bycounty.get(&String::from(*county)).unwrap();
-        let day0 = data.get(&firstdate).expect("Can't find first value");
-
-        chart
-            .draw_series(LineSeries::new(
-                (firstdate..=lastdate)
-                    .into_iter()
-                    .filter_map(|d| data.get(&d).map(|x| (d, x)))
-                    .map(|(x, y)| (day_to_dateutc(x), 100f64 * y / day0)),
-                &Palette99::pick(idx),
-            ))
-            .unwrap()
-            .label(&String::from(*county))
-            .legend(move |(x, y)| {
-                Rectangle::new([(x - 5, y - 5), (x + 5, y + 5)], &Palette99::pick(idx))
-            });
-        idx += 1;
-    }
-
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
-        .draw()
-        .unwrap();
+    /*
+    write_generic(filename, bightml, title, yaxis,
+                  counties.iter().map(|county|
+                                      (county.as_str(),
+                               analysis::pctofday0(bycounty.get(&county).expect("Can't find county"), firstdate).collect())),
+                  firstdate, lastdate)
+    */
 }
