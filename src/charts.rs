@@ -17,7 +17,6 @@ Copyright (c) 2020 John Goerzen
 
  */
 
-use plotters::prelude::*;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
@@ -66,7 +65,7 @@ pub fn write_generic(
 }
 
 pub fn write(
-    filename: &'static str, // FIXME: this is because to_inline_html requires a 'static for some reason
+    filename: &str,
     bightml: &mut File,
     title: &str,
     yaxis: &str,
@@ -105,12 +104,4 @@ pub fn writecounties(
 
     write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
 
-
-    /*
-    write_generic(filename, bightml, title, yaxis,
-                  counties.iter().map(|county|
-                                      (county.as_str(),
-                               analysis::pctofday0(bycounty.get(&county).expect("Can't find county"), firstdate).collect())),
-                  firstdate, lastdate)
-    */
 }
