@@ -10,3 +10,4 @@ plotters = {  version = "0.2.15", features = ["chrono"] }
 covid19db = "1.1"
 sqlx = { version = "0.3", default-features = false, features = ["runtime-tokio", "macros", "sqlite", "chrono"] }
 tokio = { version = "0.2", features = ["macros"] }
+plotly = { version = "0.6", features = ["kaleido"] }

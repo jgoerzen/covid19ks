@@ -35,6 +35,7 @@ pub fn calcsimplema(hm: &mut HashMap<i32, f64>, window: usize) {
 }
 
 /// untested
+#[allow(dead_code)]
 pub fn calcweightedma(hm: &mut HashMap<i32, f64>, window: usize) {
     let mut history: Vec<f64> = Vec::new();
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
