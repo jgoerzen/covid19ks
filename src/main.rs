@@ -16,18 +16,18 @@ Copyright (c) 2019-2020 John Goerzen
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+use chrono::Local;
+use covid19db::dateutil::*;
+use sqlx::sqlite::SqlitePool;
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
-use sqlx::sqlite::SqlitePool;
-use covid19db::dateutil::*;
-use std::path::Path;
-use chrono::Local;
 use std::fs::File;
+use std::path::Path;
 
-mod counties;
 mod analysis;
 mod charts;
+mod counties;
 mod db;
 
 /// Returns the first positional argument sent to this process. If there are no
@@ -41,7 +41,7 @@ fn get_nth_arg(arg: usize) -> Result<OsString, Box<dyn Error>> {
 
 #[tokio::main]
 async fn main() {
-    let first_date = ymd_to_day(2020, 7, 12);   // Dr. Norman's original chart used 2020-07-12
+    let first_date = ymd_to_day(2020, 7, 12); // Dr. Norman's original chart used 2020-07-12
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
@@ -59,7 +59,7 @@ async fn main() {
         "Dickinson",
         "Atchison",
         "Douglas",
-       "Johnson",
+        "Johnson",
         "Wyandotte",
         "Franklin",
         "Allen",
@@ -74,12 +74,15 @@ async fn main() {
         Ok(x) => String::from(x.to_str().unwrap()),
         Err(_) => {
             println!("Database file not specified; trying covid19.db in current directory");
-           String::from("covid19.db")
-        } };
+            String::from("covid19.db")
+        }
+    };
 
-
-    if ! Path::new(filename.as_str()).exists() {
-        panic!("{} does not exist; download or specify alternative path on command line", filename)
+    if !Path::new(filename.as_str()).exists() {
+        panic!(
+            "{} does not exist; download or specify alternative path on command line",
+            filename
+        )
     }
     let pool = SqlitePool::builder()
         .max_size(5)
@@ -87,10 +90,46 @@ async fn main() {
         .await
         .expect("Error building");
 
-    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
-    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
-    let mut jhumasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", true, &maskcounties, data_first_date, data_last_date).await;
-    let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_confirmed", false, &maskcounties, data_first_date, data_last_date).await;
+    let mut nytmasks = db::getmaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        true,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    let mut nytnomasks = db::getmaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        false,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    let mut jhumasks = db::getmaskdata(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        true,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+    let mut jhunomasks = db::getmaskdata(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        false,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     analysis::calcsimplema(&mut jhumasks, 7);
     analysis::calcsimplema(&mut nytnomasks, 7);
     analysis::calcsimplema(&mut nytmasks, 7);
@@ -144,13 +183,49 @@ async fn main() {
 
     ////////////// Replace the in-ram data with the deaths data.
 
-    let mut nytmasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_deaths", true, &maskcounties, data_first_date, data_last_date).await;
+    let mut nytmasks = db::getmaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_deaths",
+        true,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     analysis::calcsimplema(&mut nytmasks, 7);
-    let mut nytnomasks = db::getmaskdata(&pool, "nytimes/us-counties", "delta_deaths", false, &maskcounties, data_first_date, data_last_date).await;
+    let mut nytnomasks = db::getmaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_deaths",
+        false,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     analysis::calcsimplema(&mut nytnomasks, 7);
-    let mut jhumasks = db::getmaskdata(&pool, "jhu/daily", "delta_deaths", true, &maskcounties, data_first_date, data_last_date).await;
+    let mut jhumasks = db::getmaskdata(
+        &pool,
+        "jhu/daily",
+        "delta_deaths",
+        true,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     analysis::calcsimplema(&mut jhumasks, 7);
-    let mut jhunomasks = db::getmaskdata(&pool, "jhu/daily", "delta_deaths", false, &maskcounties, data_first_date, data_last_date).await;
+    let mut jhunomasks = db::getmaskdata(
+        &pool,
+        "jhu/daily",
+        "delta_deaths",
+        false,
+        &maskcounties,
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     analysis::calcsimplema(&mut jhunomasks, 7);
 
     /*
@@ -197,11 +272,25 @@ async fn main() {
 
     /////////////////// Counties
 
-    let mut nytbycounty = db::getcountymaskdata(&pool, "nytimes/us-counties", "delta_confirmed", data_first_date, data_last_date).await;
+    let mut nytbycounty = db::getcountymaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     for item in nytbycounty.values_mut() {
         analysis::calcsimplema(item, 7);
     }
-    let mut jhubycounty = db::getcountymaskdata(&pool, "nytimes/us-counties", "delta_confirmed", data_first_date, data_last_date).await;
+    let mut jhubycounty = db::getcountymaskdata(
+        &pool,
+        "nytimes/us-counties",
+        "delta_confirmed",
+        data_first_date,
+        data_last_date,
+    )
+    .await;
     for item in jhubycounty.values_mut() {
         analysis::calcsimplema(item, 7);
     }

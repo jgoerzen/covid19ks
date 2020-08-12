@@ -21,16 +21,16 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 
-use covid19db::dateutil::*;
 use crate::analysis;
+use covid19db::dateutil::*;
 
 // use itertools_num::linspace;
 use plotly::common::{
     ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title,
 };
 use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
-use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
 use plotly::plot::ImageFormat;
+use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
 // use rand_distr::{Distribution, Normal, Uniform};
 
 pub fn write_generic(
@@ -42,24 +42,24 @@ pub fn write_generic(
     firstdate: i32,
     lastdate: i32,
 ) {
-
     let mut plot = Plot::new();
 
     // See https://plotly.com/python/reference/scatter/#scatter-line-smoothing for smoothing
     // this line is unnecessary when not using it.
-    let line = Line::new()
-        .shape(LineShape::Spline)
-        .smoothing(1.0);
+    let line = Line::new().shape(LineShape::Spline).smoothing(1.0);
     for (label, data) in series {
-        let trace = Scatter::new((firstdate..=lastdate).map(day_to_nd),
-                                 (firstdate..=lastdate).map(|x| data.get(&x).unwrap().clone() ))
-            .mode(Mode::Lines)
-            .line(line.clone()) // only needed for smoothing
-            .name(label);
+        let trace = Scatter::new(
+            (firstdate..=lastdate).map(day_to_nd),
+            (firstdate..=lastdate).map(|x| data.get(&x).unwrap().clone()),
+        )
+        .mode(Mode::Lines)
+        .line(line.clone()) // only needed for smoothing
+        .name(label);
         plot.add_trace(trace);
     }
 
-    let layout = Layout::new().title(Title::new(title))
+    let layout = Layout::new()
+        .title(Title::new(title))
         .y_axis(Axis::new().title(Title::new(yaxis)));
     plot.set_layout(layout);
     println!("Writing to {}", filename);
@@ -67,7 +67,9 @@ pub fn write_generic(
     // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
     // plot.show_png(1024, 768);
     plot.to_html(filename);
-    bightml.write_all(plot.to_inline_html(None).as_ref()).unwrap();
+    bightml
+        .write_all(plot.to_inline_html(None).as_ref())
+        .unwrap();
     bightml.write_all(b"<br/>\n").unwrap();
 }
 
@@ -84,8 +86,7 @@ pub fn write(
     let maskshm = analysis::pctofday0(masks, firstdate);
     let nomaskshm = analysis::pctofday0(nomasks, firstdate);
     let series = vec![("Masks", &maskshm), ("No masks", &nomaskshm)];
-    write_generic(filename, bightml, title, yaxis,
-                  series, firstdate, lastdate)
+    write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
 }
 
 pub fn writecounties(
@@ -96,19 +97,24 @@ pub fn writecounties(
     counties: &Vec<&str>,
     bycounty: &HashMap<String, HashMap<i32, f64>>,
     firstdate: i32,
-    lastdate: i32
-)
-{
-    let countypcts: Vec<HashMap<i32, f64>> = counties.iter().map(|county|
-                                                                 analysis::pctofday0(bycounty.get(&String::from(*county)).expect("Can't find county"), firstdate)).collect();
-    let series: Vec<(&str, &HashMap<i32, f64>)> =
-        counties
+    lastdate: i32,
+) {
+    let countypcts: Vec<HashMap<i32, f64>> = counties
+        .iter()
+        .map(|county| {
+            analysis::pctofday0(
+                bycounty
+                    .get(&String::from(*county))
+                    .expect("Can't find county"),
+                firstdate,
+            )
+        })
+        .collect();
+    let series: Vec<(&str, &HashMap<i32, f64>)> = counties
         .iter()
         .zip(countypcts.iter())
         .map(|(county, pct)| (*county, pct))
         .collect();
 
-
     write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
-
 }
