@@ -36,7 +36,6 @@ pub fn write(
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
-    // FIXME: the .. below should be ..=
     let mut chart = ChartBuilder::on(&root)
         .x_label_area_size(40)
         .y_label_area_size(50)
@@ -102,7 +101,6 @@ pub fn writecounties(
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
-    // FIXME: the .. below should be ..=
     let mut chart = ChartBuilder::on(&root)
         .x_label_area_size(40)
         .y_label_area_size(50)
