@@ -5,7 +5,7 @@ authors = ["John Goerzen <jgoerzen@complete.org>"]
 edition = "2018"
 
 [dependencies]
-chrono = "0.4"
+chrono = {version = "0.4", features = ["serde"] }
 plotters = {  version = "0.2.15", features = ["chrono"] }
 covid19db = "1.1"
 sqlx = { version = "0.3", default-features = false, features = ["runtime-tokio", "macros", "sqlite", "chrono"] }

@@ -22,6 +22,15 @@ use std::collections::HashMap;
 
 use covid19db::dateutil::*;
 
+// use itertools_num::linspace;
+use plotly::common::{
+    ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title,
+};
+use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
+use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
+use plotly::plot::ImageFormat;
+// use rand_distr::{Distribution, Normal, Uniform};
+
 pub fn write(
     filename: &str,
     title: &str,
@@ -33,6 +42,34 @@ pub fn write(
     firstdate: i32,
     lastdate: i32,
 ) {
+    let masksday0 = masks.get(&firstdate).expect("Can't find first value");
+    let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
+
+    let tracemasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
+                                  (firstdate..=lastdate).map(|x| 100f64 * masks.get(&x).unwrap() / masksday0))
+        .mode(Mode::Lines)
+        .name("Masks");
+    let tracenomasks = Scatter::new((firstdate..=lastdate).map(day_to_nd),
+                                  (firstdate..=lastdate).map(|x| 100f64 * nomasks.get(&x).unwrap() / nomasksday0))
+        .mode(Mode::Lines)
+        .name("No masks");
+
+    let layout = Layout::new().title(Title::new(title))
+        .y_axis(Axis::new().title(Title::new(yaxis)));
+
+    let mut plot = Plot::new();
+    plot.add_trace(tracemasks);
+    plot.add_trace(tracenomasks);
+    plot.set_layout(layout);
+    println!("Writing to {}", filename);
+    // plot.show();
+    //plot.save(filename, ImageFormat::PNG, 1024, 768, 1.0);
+    plot.show_png(1024, 768);
+}
+
+
+/*
+
     let root = BitMapBackend::new(filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE).unwrap();
 
@@ -51,8 +88,6 @@ pub fn write(
         .draw()
         .expect("draw");
 
-    let masksday0 = masks.get(&firstdate).expect("Can't find first value");
-    let nomasksday0 = nomasks.get(&firstdate).expect("Can't find first value");
 
     chart
         .draw_series(LineSeries::new(
@@ -85,6 +120,7 @@ pub fn write(
         .draw()
         .unwrap();
 }
+*/
 
 pub fn writecounties(
     filename: &str,
