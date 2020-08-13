@@ -24,6 +24,7 @@ use std::error::Error;
 use std::ffi::OsString;
 use std::fs::File;
 use std::path::Path;
+use std::collections::HashMap;
 
 mod analysis;
 mod charts;
@@ -157,6 +158,24 @@ async fn main() {
         &vec!["Marion", "Harvey", "Sedgwick"],
         &nytbycounty100k,
         data_first_date,
+        data_last_date,
+    );
+
+    ////////////////////// TEST DATA
+
+    let mut cttest_ks = db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 3, 6), data_last_date).await;
+    let mut cttest_us = db::gettestdata(&pool, None, ymd_to_day(2020, 3, 6), data_last_date).await;
+    let cttest_recommended : HashMap<i32, f64> =
+        // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
+        (ymd_to_day(2020, 3, 6)..=data_last_date).map(|x| (x, 5.0)).collect();
+    charts::write_generic(
+        "images/test-ctp.html",
+        &mut bightml,
+        "COVID-19 Test Positivity Rate in Kansas (Covid Tracking Project)",
+        "Positivity rate (% of tests results positive)",
+        vec![("Kansas", &cttest_ks), ("Overall USA", &cttest_us),
+             ("Recommended Maximum", &cttest_recommended)],
+        ymd_to_day(2020, 6, 1),
         data_last_date,
     );
 

@@ -50,7 +50,7 @@ pub fn write_generic(
     for (label, data) in series {
         let trace = Scatter::new(
             (firstdate..=lastdate).map(day_to_nd),
-            (firstdate..=lastdate).map(|x| data.get(&x).unwrap().clone()),
+            (firstdate..=lastdate).map(|x| data.get(&x).expect(format!("No {}", x).as_str()).clone()),
         )
         .mode(Mode::Lines)
         .line(line.clone()) // only needed for smoothing

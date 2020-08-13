@@ -164,3 +164,33 @@ pub async fn getcountymaskdata_100k(
         });
     hm
 }
+
+pub async fn gettestdata(
+    pool: &sqlx::SqlitePool,
+    state: Option<&str>,
+    first_date: i32,
+    last_date: i32,
+) -> HashMap<i32, f64> {
+    let querystr =
+        if let Some(s) = state {
+            "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covid19tracking
+            where state = ? AND date_julian >= ? AND date_julian <= ? order by date_julian"
+        } else {
+            "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covid19tracking_us
+            where date_julian >= ? AND date_julian <= ? order by date_julian"
+        };
+    println!("{}", querystr);
+
+    let mut query = sqlx::query_as::<_, (i32, f64)>(querystr);
+    if let Some(s) = state {
+        query = query.bind(s);
+    }
+    query
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect()
+}
