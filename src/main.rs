@@ -163,18 +163,29 @@ async fn main() {
 
     ////////////////////// TEST DATA
 
-    let mut cttest_ks = db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 3, 6), data_last_date).await;
-    let mut cttest_us = db::gettestdata(&pool, None, ymd_to_day(2020, 3, 6), data_last_date).await;
+    let cttest_ks = db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 6, 6), data_last_date).await;
+    let cttest_us = db::gettestdata(&pool, None, ymd_to_day(2020, 6, 6), data_last_date).await;
+    // let owidtest_us = db::gettestdata_owid(&pool, "USA", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_can = db::gettestdata_owid(&pool, "CAN", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_deu = db::gettestdata_owid(&pool, "DEU", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_fra = db::gettestdata_owid(&pool, "FRA", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_twn = db::gettestdata_owid(&pool, "TWN", ymd_to_day(2020, 6, 6), data_last_date).await;
+
     let cttest_recommended : HashMap<i32, f64> =
         // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
         (ymd_to_day(2020, 3, 6)..=data_last_date).map(|x| (x, 5.0)).collect();
     charts::write_generic(
         "test-ctp",
         &mut bightml,
-        "COVID-19 Test Positivity Rate in Kansas (Covid Tracking Project)",
+        "COVID-19 Test Positivity Rate in Kansas (Covid Tracking / OWID)",
         "Positivity rate (% of tests results positive)",
         vec![("Kansas", &cttest_ks), ("Overall USA", &cttest_us),
-             ("Recommended Maximum", &cttest_recommended)],
+             ("Recommended Maximum", &cttest_recommended),
+             // ("USA (OWID)", &owidtest_us),
+             ("Canada", &owidtest_can),
+             ("Germany", &owidtest_deu),
+             ("France", &owidtest_fra),
+    ("Taiwan", &owidtest_twn)],
         ymd_to_day(2020, 6, 6),
         data_last_date,
     );
