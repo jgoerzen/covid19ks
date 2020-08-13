@@ -35,6 +35,5 @@ deploy: build ghp-fix
 	mkdir deploy/graphs
 	cp static/script.html deploy/graphs/
 	cp html-fragments/* deploy/graphs/
-	TZ=America/Chicago date > deploy/graphs/timestamp
 
 # end
