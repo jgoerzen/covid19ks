@@ -16,7 +16,7 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.PHONY: ghp-fix build
+.PHONY: ghp-fix build deploy
 
 COVID19DB_PATH ?= covid19.db
 
@@ -29,5 +29,13 @@ build:
 
 ghp-fix:
 	sed -i 's/^ *//g' static/*.html html-fragments/*.html
+
+deploy: build ghp-fix
+	cp -r website deploy
+	mkdir deploy/graphs
+	cp static/script.html deploy/graphs/
+	cp html-fragments/* deploy/graphs/
+
+
 
 # end

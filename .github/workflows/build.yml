@@ -21,13 +21,12 @@ jobs:
     - name: Build
       run: cargo build
     - name: Run
-      run: make build ghp-fix && cp -v static/script.html html-fragments/
+      run: make deploy
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./html-fragments
-        destination_dir: graphs
+        publish_dir: ./deploy
 #    - name: Build
 #      run: cargo build --verbose
 #    - name: Run tests
