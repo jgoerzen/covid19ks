@@ -52,7 +52,7 @@ async fn main() {
     let _daterange_full = data_first_date..=data_last_date;
     let _daterange_updated = first_date..data_last_date;
 
-    // Source: https://www.kansas.com/news/politics-government/article244091222.html
+    // Source: https://www.kansas.com/news/politics-government/article244091222
     let maskcounties = counties::Counties::new(vec![
         "Jewell",
         "Mitchell",
@@ -69,7 +69,7 @@ async fn main() {
         "Montgomery",
     ]);
 
-    let mut bightml = File::create("all.html").unwrap();
+    let mut bightml = File::create("html-fragments/all.html").unwrap();
 
     let filename = match get_nth_arg(1) {
         Ok(x) => String::from(x.to_str().unwrap()),
@@ -116,7 +116,7 @@ async fn main() {
     nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
 
     charts::write_generic(
-        "images/main-pop100k-nyt.html",
+        "main-pop100k-nyt",
         &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (NYT)",
         "7-day moving average of new cases per 100,000 population",
@@ -139,7 +139,7 @@ async fn main() {
 
     /*
     charts::writecounties_100k(
-        "images/counties-100k-nyt.html",
+        "counties-100k-nyt",
         &mut bightml,
         "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
@@ -151,7 +151,7 @@ async fn main() {
     */
 
     charts::writecounties_100k(
-        "images/counties-100k-nyt.html",
+        "counties-100k-nyt",
         &mut bightml,
         "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
@@ -169,19 +169,20 @@ async fn main() {
         // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
         (ymd_to_day(2020, 3, 6)..=data_last_date).map(|x| (x, 5.0)).collect();
     charts::write_generic(
-        "images/test-ctp.html",
+        "test-ctp",
         &mut bightml,
         "COVID-19 Test Positivity Rate in Kansas (Covid Tracking Project)",
         "Positivity rate (% of tests results positive)",
         vec![("Kansas", &cttest_ks), ("Overall USA", &cttest_us),
              ("Recommended Maximum", &cttest_recommended)],
-        ymd_to_day(2020, 6, 1),
+        ymd_to_day(2020, 6, 6),
         data_last_date,
     );
 
 
     ////////////////////// DEATHS
 
+    /*
     let mut nytbycounty100k = db::getcountymaskdata_100k(
         &pool,
         "nytimes/us-counties",
@@ -194,7 +195,7 @@ async fn main() {
         *item = analysis::calcsimplema(item, 7);
     }
     charts::writecounties_100k(
-        "images/counties-100k-deaths-nyt.html",
+        "counties-100k-deaths-nyt",
         &mut bightml,
         "COVID-19 deaths in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases per 100,000 population",
@@ -203,6 +204,7 @@ async fn main() {
         data_first_date,
         data_last_date,
     );
+    */
 
 
     //////////////////  Percentage
@@ -255,7 +257,7 @@ async fn main() {
     */
     /*
     charts::write(
-        "images/main-nyt.html",
+        "main-nyt",
         &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (NYT)",
         "7-day moving average of new cases, % relative to July 12",
@@ -266,7 +268,7 @@ async fn main() {
     );
 
     charts::write(
-        "images/main-jhu.html",
+        "main-jhu",
         &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (JHU)",
         "7-day moving average of new cases, % relative to July 12",
@@ -279,7 +281,7 @@ async fn main() {
     /*
 
     charts::write(
-        "images/main-updated-nyt.html",
+        "main-updated-nyt",
         &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (Updated NYT)",
         "7-day moving average of new cases, % relative to July 12",
@@ -290,7 +292,7 @@ async fn main() {
     );
 
     charts::write(
-        "images/main-updated-jhu.html",
+        "main-updated-jhu",
         &mut bightml,
         "COVID-19: Masks vs no-mask counties, KS (Updated JHU)",
         "7-day moving average of new cases, % relative to July 12",
@@ -349,7 +351,7 @@ async fn main() {
 
     /*
     charts::write(
-        "images/deaths-nyt.html",
+        "deaths-nyt",
         &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (NYT)",
         "7-day moving average of new deaths, % relative to July 12",
@@ -359,7 +361,7 @@ async fn main() {
         last_date,
     );
     charts::write(
-        "images/deaths-jhu.html",
+        "deaths-jhu",
         &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (JHU)",
         "7-day moving average of new deaths, % relative to July 12",
@@ -369,7 +371,7 @@ async fn main() {
         last_date
     ); */
     charts::write(
-        "images/deaths-updated-nyt.html",
+        "deaths-updated-nyt",
         &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (Updated NYT)",
         "7-day moving average of new deaths, % relative to July 12",
@@ -379,7 +381,7 @@ async fn main() {
         data_last_date,
     );
     charts::write(
-        "images/deaths-updated-jhu.html",
+        "deaths-updated-jhu",
         &mut bightml,
         "COVID-19 deaths: Mask vs no-mask (Updated JHU)",
         "7-day moving average of new deaths, % relative to July 12",
@@ -416,7 +418,7 @@ async fn main() {
     */
     /*
     charts::writecounties(
-        "images/counties-nyt.html",
+        "counties-nyt",
         &mut bightml,
         "COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving average of new cases, % relative to July 12",
@@ -426,7 +428,7 @@ async fn main() {
         last_date,
     );
     charts::writecounties(
-        "images/counties-jhu.html",
+        "counties-jhu",
         &mut bightml,
         "COVID-19 cases in Selected Counties, Kansas (JHU)",
         "7-day moving average of new cases, % relative to July 12",
@@ -438,7 +440,7 @@ async fn main() {
     */
     /*
     charts::writecounties(
-        "images/counties-updated-nyt.html",
+        "counties-updated-nyt",
         &mut bightml,
         "COVID-19 cases in Selected Counties, Kansas (Updated NYT)",
         "7-day moving average of new cases, % relative to July 12",
@@ -448,7 +450,7 @@ async fn main() {
         data_last_date,
     );
     charts::writecounties(
-        "images/counties-updated-jhu.html",
+        "counties-updated-jhu",
         &mut bightml,
         "COVID-19 cases in Selected Counties, Kansas (Updated JHU)",
         "7-day moving average of new cases, % relative to July 12",

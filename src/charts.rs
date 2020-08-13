@@ -34,7 +34,7 @@ use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
 // use rand_distr::{Distribution, Normal, Uniform};
 
 pub fn write_generic(
-    filename: &str,
+    filename: &'static str, // grumble due to plotly library
     bightml: &mut File,
     title: &str,
     yaxis: &str,
@@ -66,15 +66,17 @@ pub fn write_generic(
     // plot.show();
     // plot.save(filename, ImageFormat::SVG, 1024, 768, 1.0);
     // plot.show_png(1024, 768);
-    plot.to_html(filename);
+    plot.to_html(format!("html-entire/{}.html", filename));
+    let inlinestr = plot.to_inline_html(Some(filename));
+    File::create(format!("html-fragments/{}.html", filename)).unwrap().write_all(inlinestr.as_ref()).unwrap();
     bightml
-        .write_all(plot.to_inline_html(None).as_ref())
+        .write_all(inlinestr.as_ref())
         .unwrap();
     bightml.write_all(b"<br/>\n").unwrap();
 }
 
 pub fn write(
-    filename: &str,
+    filename: &'static str,  // grumble due to plotly library
     bightml: &mut File,
     title: &str,
     yaxis: &str,
@@ -90,7 +92,7 @@ pub fn write(
 }
 
 pub fn writecounties(
-    filename: &str,
+    filename: &'static str,  // static grumble due to plotly
     bightml: &mut File,
     title: &str,
     yaxis: &str,
@@ -120,7 +122,7 @@ pub fn writecounties(
 }
 
 pub fn writecounties_100k(
-    filename: &str,
+    filename: &'static str, // grumble due to plotly
     bightml: &mut File,
     title: &str,
     yaxis: &str,
