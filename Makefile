@@ -24,7 +24,7 @@ build:
 	if [ ! -e $(COVID19DB_PATH) ]; then \
 		curl -L -o covid19db.zip https://github.com/jgoerzen/covid19db/releases/download/v0.1.0/covid19db.zip && \
         unzip covid19db.zip && rm covid19db.zip; fi
-	cargo run --release $(COVID19DB_PATH)
+	cargo run $(COVID19DB_PATH)
 	cat static/header.html html-fragments/all.html static/footer.html > html-entire/full.html
 
 ghp-fix:

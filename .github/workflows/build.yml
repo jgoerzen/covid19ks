@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: cargo build --release
+      run: cargo build
     - name: Run
       run: make build ghp-fix && cp -v static/script.html html-fragments/
     - name: Deploy
