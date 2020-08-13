@@ -1,4 +1,10 @@
-# COVID-19 in Kansas: Masks vs. No-Masks
+# COVID-19 in Kansas
+
+![build](https://github.com/jgoerzen/covid19ks/workflows/build/badge.svg) 
+
+This repository contains software that automatically generates graphs about COVID-19 in Kansas. 
+
+**[Click here to see the current graphs](https://jgoerzen.github.io/covid19ks/)**
 
 In 2020, some counties in Kansas adopted a mask requirement while others didn't.  The Kansas Department of Health and Environment published a [chart](kdhe-chart.pdf) illustrating COVID-19 changes in masks vs. without counties.
 
