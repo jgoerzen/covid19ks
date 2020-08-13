@@ -10,7 +10,7 @@ This repository contains software that automatically generates graphs about COVI
 
 This project started because, in 2020, some counties in Kansas adopted a mask requirement while others didn't.  The Kansas Department of Health and Environment published a [chart](kdhe-chart.pdf) illustrating COVID-19 changes in masks vs. without counties.
 
-Some people questioned whether this chart was misleading due to its use of different Y-axis.  This repository produces a similar chart with a unified Y-axis and shows that the result was not misleading.  Here is the chart I generated using an earlier version of this software:
+Some people questioned whether this chart was misleading due to its use of different Y-axis.  This repository produces a similar chart with a unified Y-axis and shows that the result was not misleading.  Here is the original chart I generated using an earlier version of this software:
 
 ![](main.png)
 
@@ -29,7 +29,7 @@ cargo run --release
 
 With these commands, you can verify these results for yourself.  If you don't already have Rust installed, see the [Rust installation](https://www.rust-lang.org/tools/install) page.
 
-# Copyright
+# Copyright & Acknowledgements
 
     This code is Copyright (c) 2019-2020 John Goerzen
 
@@ -48,6 +48,10 @@ With these commands, you can verify these results for yourself.  If you don't al
 
 
 This repository contains only tools for obtaining data and no data itself, though the data itself may be available elsewhere on Github.  If you use the data accumulated by this program, or download it, you may be required to acknowledge the source.  Here are some details:
+
+## covid19db
+
+All data is accumulated through [covid19db](https://github.com/jgoerzen/covid19db); see that page for more details.
 
 ## cdataset - New York Times
 
