@@ -17,7 +17,7 @@ Dates of interest:
 
 Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend. :
 
-# COVID-19 Test Positivy Rates in Kansas
+# COVID-19 Test Positivity Rates in Kansas
 
 {% include_relative graphs/test-ctp.html %}
 
