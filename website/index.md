@@ -17,6 +17,12 @@ Dates of interest:
 
 Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend. :
 
+# New COVID-19 Cases: Global Perspective
+
+{% include_relative graphs/global-100k.html %}
+
+This graph is similar to the one before, but looks at things on a more global perspective.  Again, notice how poorly the USA fares, and how Kansas is even worse.
+
 # COVID-19 Test Positivity Rates - Local & Global Perspective
 
 {% include_relative graphs/test-ctp.html %}
@@ -43,3 +49,4 @@ Charts identified "COVID Tracking" use [data](https://covidtracking.com/about-da
 
 Charts identified OWID use [data](https://ourworldindata.org/how-to-use-our-world-in-data#how-is-our-work-copyrighted) from Our World in Data.
 
+Charts identified JHU use the [JHU CSSE COVID-19 Data](https://github.com/CSSEGISandData/COVID-19) from Johns Hopkins University.

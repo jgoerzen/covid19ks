@@ -143,14 +143,15 @@ pub async fn getcountymaskdata_100k(
 ) -> HashMap<String, HashMap<i32, f64>> {
     let query = format!(
         "SELECT administrative, date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
-            WHERE dataset = '{}' AND province = 'Kansas'
+            WHERE dataset = ? AND province = 'Kansas'
                   AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
             GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
-        field, dataset
+        field
     );
     let mut hm = HashMap::new();
     println!("{}", query);
     sqlx::query_as::<_, (String, i32, f64)>(query.as_str())
+        .bind(dataset)
         .bind(first_date)
         .bind(last_date)
         .fetch_all(pool)
@@ -163,6 +164,34 @@ pub async fn getcountymaskdata_100k(
                 .insert(x, y);
         });
     hm
+}
+
+/// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
+pub async fn getgeneralmaskdata_100k(
+    pool: &sqlx::SqlitePool,
+    dataset: &str,
+    field: &str,
+    where_clause: &str,
+    first_date: i32,
+    last_date: i32,
+) -> HashMap<i32, f64> {
+    let query = format!(
+        "SELECT date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
+            WHERE dataset = ? AND {}
+                  AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
+            GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
+        field, where_clause
+    );
+    println!("{}", query);
+    sqlx::query_as::<_, (i32, f64)>(query.as_str())
+        .bind(dataset)
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect()
 }
 
 pub async fn gettestdata(

@@ -137,6 +137,68 @@ async fn main() {
         *item = analysis::calcsimplema(item, 7);
     }
 
+
+    let deltconfks = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = 'Kansas' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfks = analysis::calcsimplema(&deltconfks, 7);
+
+    let deltconfus = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = '' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfus = analysis::calcsimplema(&deltconfus, 7);
+
+    let deltconfcan = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = '' and country_code = 'CA'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfcan = analysis::calcsimplema(&deltconfcan, 7);
+
+    let deltconfdeu = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = '' and country_code = 'DE'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfdeu = analysis::calcsimplema(&deltconfdeu, 7);
+
+    let deltconffra = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = '' and country_code = 'FR'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconffra = analysis::calcsimplema(&deltconffra, 7);
+
+    let deltconftwn = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = '' and country_code = 'TW'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconftwn = analysis::calcsimplema(&deltconftwn, 7);
+
+
     /*
     charts::writecounties_100k(
         "counties-100k-nyt",
@@ -161,6 +223,24 @@ async fn main() {
         data_last_date,
     );
 
+    charts::write_generic(
+        "global-100k",
+        &mut bightml,
+        "New COVID-19 cases in Selected Regions (NYT / JHU)",
+        "7-day moving average of new cases pere 100,000 population",
+        vec![("Sedgwick County", nytbycounty100k.get("Sedgwick").unwrap()),
+             ("Kansas", &deltconfks),
+             ("USA", &deltconfus),
+             ("Canada", &deltconfcan),
+             ("Germany", &deltconfdeu),
+             ("France", &deltconffra),
+             ("Taiwan", &deltconftwn),
+        ],
+        data_first_date,
+        data_last_date,
+
+    );
+
     ////////////////////// TEST DATA
 
     let cttest_ks = db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 6, 6), data_last_date).await;
@@ -177,7 +257,7 @@ async fn main() {
     charts::write_generic(
         "test-ctp",
         &mut bightml,
-        "COVID-19 Test Positivity Rate in Kansas (Covid Tracking / OWID)",
+        "COVID-19 Test Positivity Rate (Covid Tracking / OWID)",
         "Positivity rate (% of tests results positive)",
         vec![("Kansas", &cttest_ks), ("Overall USA", &cttest_us),
              ("Recommended Maximum", &cttest_recommended),
