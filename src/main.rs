@@ -150,6 +150,42 @@ async fn main() {
         data_last_date,
     ).await;
     let deltconfks = analysis::calcsimplema(&deltconfks, 7);
+    let deltconfmo = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = 'Missouri' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfmo = analysis::calcsimplema(&deltconfmo, 7);
+    let deltconfne = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = 'Nebraska' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfne = analysis::calcsimplema(&deltconfne, 7);
+    let deltconfco = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = 'Colorado' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfco = analysis::calcsimplema(&deltconfco, 7);
+    let deltconfok = db::getgeneralmaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        "province = 'Oklahoma' and country_code = 'US'",
+        data_first_date,
+        data_last_date,
+    ).await;
+    let deltconfok = analysis::calcsimplema(&deltconfok, 7);
 
     let deltconfus = db::getgeneralmaskdata_100k(
         &pool,
@@ -227,6 +263,22 @@ async fn main() {
     );
 
     charts::write_generic(
+        "centralusa-100k",
+        &mut bightml,
+        "New COVID-19 cases in Central USA (NYT)",
+        "7-day moving avg of new cases per 100,000 pop.",
+        vec![
+             ("Kansas", &deltconfks),
+            ("Missouri", &deltconfmo),
+            ("Colorado", &deltconfco),
+            ("Nebraska", &deltconfne),
+            ("Oklahoma", &deltconfok),
+             ("USA", &deltconfus),
+        ],
+        data_first_date,
+        data_last_date,
+    );
+    charts::write_generic(
         "global-100k",
         &mut bightml,
         "New COVID-19 cases in Selected Regions (NYT / JHU)",
@@ -241,7 +293,6 @@ async fn main() {
         ],
         data_first_date,
         data_last_date,
-
     );
 
     ////////////////////// TEST DATA
