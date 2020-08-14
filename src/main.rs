@@ -52,21 +52,24 @@ async fn main() {
     let _daterange_full = data_first_date..=data_last_date;
     let _daterange_updated = first_date..data_last_date;
 
-    // Source: https://www.kansas.com/news/politics-government/article244091222
+    // Original source: https://www.kansas.com/news/politics-government/article244091222
+    // Updated 2020-08-13 per https://www.coronavirus.kdheks.gov/DocumentCenter/View/1424/COVID-19-Kansas-Mask-Vs-No-Mask-Counties-Data
     let maskcounties = counties::Counties::new(vec![
-        "Jewell",
-        "Mitchell",
-        "Saline",
-        "Dickinson",
-        "Atchison",
-        "Douglas",
-        "Johnson",
-        "Wyandotte",
-        "Franklin",
         "Allen",
+        "Atchison",
         "Bourbon",
         "Crawford",
+        "Dickinson",
+        "Douglas",
+        "Franklin",
+        "Grant",
+        "Jewell",
+        "Johnson",
+        "Mitchell",
         "Montgomery",
+        "Saline",
+        "Shawnee",
+        "Wyandotte",
     ]);
 
     let mut bightml = File::create("html-fragments/all.html").unwrap();
