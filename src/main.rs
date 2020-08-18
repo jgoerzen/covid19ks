@@ -300,7 +300,7 @@ async fn main() {
         "New COVID-19 cases in Selected Regions (NYT / JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![("Kansas", &deltconfks),
-             ("Harvey County", nytbycounty100k.get("Harvey").unwrap()),
+             ("Sedgwick County", nytbycounty100k.get("Sedgwick").unwrap()),
              ("USA", &deltconfus),
              ("Canada", &deltconfcan),
              ("Germany", &deltconfdeu),
