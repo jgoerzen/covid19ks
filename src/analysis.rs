@@ -40,6 +40,27 @@ pub fn calcsimplema(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> 
     rethm
 }
 
+/// Populate the simple sum in the second element of the list, modifying it in-place.
+pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> {
+    let mut history: Vec<f64> = Vec::new();
+    let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
+    keys.sort();
+    let mut rethm = HashMap::new();
+    for key in keys.into_iter() {
+        match hm.get(&key) {
+            Some(val) => {
+                history.push(*val);
+                if history.len() > window {
+                    history.remove(0);
+                }
+                rethm.insert(key, history.iter().sum::<f64>());
+            }
+            None => (),
+        }
+    }
+    rethm
+}
+
 /// untested
 #[allow(dead_code)]
 pub fn calcweightedma(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> {

@@ -39,9 +39,21 @@ Note how many countries are doing better than the recommended, and, as of August
 
 {% include_relative graphs/main-pop100k-nyt.html %}
 
-This graph is a different view of the data KDHE Sec. Dr. Norman presented.  It shows new cases per 100,000 population.  Note that the mask counties began with a much higher case rate than the no-mask counties, and after the adoption of masks, significantly narrowed the gap.  The mask counties were and are higher due to being more dense and urban.
+This graph is a different view of the data KDHE Sec. Dr. Norman presented, updated to the present day (his was updated through August 3).  It shows new cases per 100,000 population.  Note that the mask counties began with a much higher case rate than the no-mask counties, and after the adoption of masks, significantly narrowed the gap.  The mask counties were and are higher due to being more dense and urban.
 
-Changing mask rules have made the mask vs. no-mask county distinction somewhat arbitrary; for instance, neither Harvey nor Saline adopted mask requirements at the beginning, but did so later.  They are still in the "no mask" category.
+Changing mask rules have made the mask vs. no-mask county distinction somewhat arbitrary; for instance, neither Harvey nor Saline adopted mask requirements at the beginning, but did so later.
+
+# KSDE Metric Graphs
+
+These charts pertain to the [school reopening metrics](https://www.ksde.org/Portals/0/Communications/Navigating%20Change/Gating%20Criteria%20Graphic.pdf?ver=2020-08-13-123107-083) set out by KSDE.
+
+Some of the relevant data is above; additional data is here.
+
+## 2-week cumulative county incidence rate
+
+{% include_relative graphs/counties-100k-sum-nyt.html %}
+
+
 
 # About these charts
 

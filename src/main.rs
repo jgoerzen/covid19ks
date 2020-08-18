@@ -136,10 +136,6 @@ async fn main() {
         data_last_date,
     )
     .await;
-    for item in nytbycounty100k.values_mut() {
-        *item = analysis::calcsimplema(item, 7);
-    }
-
 
     let deltconfks = db::getgeneralmaskdata_100k(
         &pool,
@@ -237,6 +233,26 @@ async fn main() {
     ).await;
     let deltconftwn = analysis::calcsimplema(&deltconftwn, 7);
 
+    let mut nytbycounty100k_sum = nytbycounty100k.clone();
+    for item in nytbycounty100k_sum.values_mut () {
+        *item = analysis::calcsimplesum(item, 14);
+    }
+
+    charts::writecounties_100k(
+        "counties-100k-sum-nyt",
+        &mut bightml,
+        "14-day New COVID-19 Cases (NYT)",
+        "14-day sum of new cases per 100,000 pop.",
+        &vec!["Marion", "Harvey", "Sedgwick"],
+        &nytbycounty100k_sum,
+        data_first_date,
+        data_last_date,
+    );
+
+
+    for item in nytbycounty100k.values_mut() {
+        *item = analysis::calcsimplema(item, 7);
+    }
 
     /*
     charts::writecounties_100k(
