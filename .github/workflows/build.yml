@@ -21,7 +21,7 @@ jobs:
     - name: Build
       run: cargo build
     - name: Run
-      run: make deploy
+      run: RUST_BACKTRACE=full make deploy
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
