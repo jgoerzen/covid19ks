@@ -17,10 +17,6 @@ Dates of interest:
 
 Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend. :
 
-# COVID-19 in the Central USA
-
-{% include_relative graphs/centralusa-100k.html %}
-
 # New COVID-19 Cases: Global Perspective
 
 {% include_relative graphs/global-100k.html %}
