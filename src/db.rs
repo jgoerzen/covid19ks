@@ -199,8 +199,8 @@ pub async fn gettestdata_harveyco(
 ) -> HashMap<i32, (i64, i64)> {
     let querystr = format!(
         "SELECT date_julian, {}_pos_results, {}_tot_results from harveycotests
-            where date_julian >= ? order by date_julian",
-        source, source
+            where date_julian >= ? AND {}_pos_results IS NOT NULL AND {}_tot_results IS NOT NULL order by date_julian",
+        source, source, source, source
     );
     println!("{}", querystr);
 

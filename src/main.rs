@@ -364,8 +364,8 @@ async fn main() {
         *harveyco_kdhe.get(&ymd_to_day(2020, 6, 9)).unwrap()
     );
     assert_eq!(
-        (0, 0),
-        *harveyco_harveyco.get(&ymd_to_day(2020, 6, 9)).unwrap()
+        None,
+        harveyco_harveyco.get(&ymd_to_day(2020, 6, 9))
     );
 
     let harveyco_kdhe = analysis::calcsimplerate_testdata(&harveyco_kdhe, 14);

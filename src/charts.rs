@@ -33,6 +33,19 @@ use plotly::plot::ImageFormat;
 use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
 // use rand_distr::{Distribution, Normal, Uniform};
 
+pub fn hmtoseries<U: Clone>(hm: &HashMap<i32, U>, keylist: impl Iterator<Item = i32>) -> (Vec<i32>, Vec<U>) {
+    let mut retkeys = Vec::new();
+    let mut retvals = Vec::new();
+    for key in keylist {
+        if let Some(val) = hm.get(&key) {
+            retkeys.push(key);
+            retvals.push(val.clone());
+        }
+    }
+    (retkeys, retvals)
+}
+
+
 pub fn write_generic(
     filename: &'static str, // grumble due to plotly library
     bightml: &mut File,
@@ -48,10 +61,10 @@ pub fn write_generic(
     // this line is unnecessary when not using it.
     let line = Line::new().shape(LineShape::Spline).smoothing(1.0);
     for (label, data) in series {
+        let (keys, vals) = hmtoseries(data, firstdate..=lastdate);
         let trace = Scatter::new(
-            (firstdate..=lastdate).map(day_to_nd),
-            (firstdate..=lastdate)
-                .map(|x| data.get(&x).expect(format!("No {}", x).as_str()).clone()),
+            keys.into_iter().map(day_to_nd),
+            vals
         )
         .mode(Mode::Lines)
         .line(line.clone()) // only needed for smoothing
