@@ -196,11 +196,10 @@ pub async fn gettestdata_harveyco(
     pool: &sqlx::SqlitePool,
     source: &str,
     first_date: i32,
-    last_date: i32,
 ) -> HashMap<i32, (i64, i64)> {
     let querystr = format!(
         "SELECT date_julian, {}_pos_results, {}_tot_results from harveycotests
-            where date_julian >= ? AND date_julian <= ? order by date_julian",
+            where date_julian >= ? order by date_julian",
         source, source
     );
     println!("{}", querystr);
@@ -208,7 +207,6 @@ pub async fn gettestdata_harveyco(
     let query = sqlx::query_as::<_, (i32, i64, i64)>(querystr.as_str());
     query
         .bind(first_date)
-        .bind(last_date)
         .fetch_all(pool)
         .await
         .unwrap()

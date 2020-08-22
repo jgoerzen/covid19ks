@@ -346,9 +346,9 @@ async fn main() {
     let owidtest_twn =
         db::gettestdata_owid(&pool, "TWN", ymd_to_day(2020, 6, 6), data_last_date).await;
     let harveyco_kdhe =
-        db::gettestdata_harveyco(&pool, "kdhe", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_harveyco(&pool, "kdhe", ymd_to_day(2020, 6, 6)).await;
     let harveyco_harveyco =
-        db::gettestdata_harveyco(&pool, "harveyco", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_harveyco(&pool, "harveyco", ymd_to_day(2020, 6, 6)).await;
     // (pos, total)
     assert_eq!(
         (3, 44),
@@ -373,8 +373,10 @@ async fn main() {
     let kdheval = *harveyco_kdhe.get(&ymd_to_day(2020, 8, 14)).unwrap();
     let harveycoval = *harveyco_harveyco.get(&ymd_to_day(2020, 8, 14)).unwrap();
 
-
+    // =100*SUM(C70:C83)/(SUM(C70:C83)+SUM(B70:B83))
     assert!(5.708245242 <= kdheval && 5.708245245 >= kdheval);
+
+    // =100*SUM(E70:E83)/(SUM(D70:D83)+SUM(E70:E83))
     assert!(7.632600258 <= harveycoval && 7.632600261 >= harveycoval);
     let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
 
