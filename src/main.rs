@@ -19,12 +19,12 @@ Copyright (c) 2019-2020 John Goerzen
 use chrono::Local;
 use covid19db::dateutil::*;
 use sqlx::sqlite::SqlitePool;
+use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
 use std::fs::File;
 use std::path::Path;
-use std::collections::HashMap;
 
 mod analysis;
 mod charts;
@@ -153,7 +153,8 @@ async fn main() {
         "province = 'Kansas' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfks = analysis::calcsimplema(&deltconfks, 7);
     let deltconfmo = db::getgeneralmaskdata_100k(
         &pool,
@@ -162,7 +163,8 @@ async fn main() {
         "province = 'Missouri' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfmo = analysis::calcsimplema(&deltconfmo, 7);
     let deltconfne = db::getgeneralmaskdata_100k(
         &pool,
@@ -171,7 +173,8 @@ async fn main() {
         "province = 'Nebraska' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfne = analysis::calcsimplema(&deltconfne, 7);
     let deltconfco = db::getgeneralmaskdata_100k(
         &pool,
@@ -180,7 +183,8 @@ async fn main() {
         "province = 'Colorado' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfco = analysis::calcsimplema(&deltconfco, 7);
     let deltconfok = db::getgeneralmaskdata_100k(
         &pool,
@@ -189,7 +193,8 @@ async fn main() {
         "province = 'Oklahoma' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfok = analysis::calcsimplema(&deltconfok, 7);
 
     let deltconfus = db::getgeneralmaskdata_100k(
@@ -199,7 +204,8 @@ async fn main() {
         "province = '' and country_code = 'US'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfus = analysis::calcsimplema(&deltconfus, 7);
 
     let deltconfcan = db::getgeneralmaskdata_100k(
@@ -209,7 +215,8 @@ async fn main() {
         "province = '' and country_code = 'CA'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfcan = analysis::calcsimplema(&deltconfcan, 7);
 
     let deltconfdeu = db::getgeneralmaskdata_100k(
@@ -219,7 +226,8 @@ async fn main() {
         "province = '' and country_code = 'DE'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconfdeu = analysis::calcsimplema(&deltconfdeu, 7);
 
     let deltconffra = db::getgeneralmaskdata_100k(
@@ -229,7 +237,8 @@ async fn main() {
         "province = '' and country_code = 'FR'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconffra = analysis::calcsimplema(&deltconffra, 7);
 
     let deltconftwn = db::getgeneralmaskdata_100k(
@@ -239,11 +248,12 @@ async fn main() {
         "province = '' and country_code = 'TW'",
         data_first_date,
         data_last_date,
-    ).await;
+    )
+    .await;
     let deltconftwn = analysis::calcsimplema(&deltconftwn, 7);
 
     let mut nytbycounty100k_sum = nytbycounty100k.clone();
-    for item in nytbycounty100k_sum.values_mut () {
+    for item in nytbycounty100k_sum.values_mut() {
         *item = analysis::calcsimplesum(item, 14);
     }
 
@@ -257,7 +267,6 @@ async fn main() {
         data_first_date,
         data_last_date,
     );
-
 
     for item in nytbycounty100k.values_mut() {
         *item = analysis::calcsimplema(item, 7);
@@ -293,12 +302,12 @@ async fn main() {
         "New COVID-19 cases in Central USA (JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![
-             ("Kansas", &deltconfks),
+            ("Kansas", &deltconfks),
             ("Missouri", &deltconfmo),
             ("Colorado", &deltconfco),
             ("Nebraska", &deltconfne),
             ("Oklahoma", &deltconfok),
-             ("USA", &deltconfus),
+            ("USA", &deltconfus),
         ],
         data_first_date,
         data_last_date,
@@ -308,13 +317,14 @@ async fn main() {
         &mut bightml,
         "New COVID-19 cases in Selected Regions (NYT / JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
-        vec![("Kansas", &deltconfks),
-             ("Sedgwick County", nytbycounty100k.get("Sedgwick").unwrap()),
-             ("USA", &deltconfus),
-             ("Canada", &deltconfcan),
-             ("Germany", &deltconfdeu),
-             ("France", &deltconffra),
-             ("Taiwan", &deltconftwn),
+        vec![
+            ("Kansas", &deltconfks),
+            ("Sedgwick County", nytbycounty100k.get("Sedgwick").unwrap()),
+            ("USA", &deltconfus),
+            ("Canada", &deltconfcan),
+            ("Germany", &deltconfdeu),
+            ("France", &deltconffra),
+            ("Taiwan", &deltconftwn),
         ],
         data_first_date,
         data_last_date,
@@ -322,13 +332,40 @@ async fn main() {
 
     ////////////////////// TEST DATA
 
-    let cttest_ks = db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 6, 6), data_last_date).await;
+    let cttest_ks =
+        db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 6, 6), data_last_date).await;
     let cttest_us = db::gettestdata(&pool, None, ymd_to_day(2020, 6, 6), data_last_date).await;
     // let owidtest_us = db::gettestdata_owid(&pool, "USA", ymd_to_day(2020, 6, 6), data_last_date).await;
-    let owidtest_can = db::gettestdata_owid(&pool, "CAN", ymd_to_day(2020, 6, 6), data_last_date).await;
-    let owidtest_deu = db::gettestdata_owid(&pool, "DEU", ymd_to_day(2020, 6, 6), data_last_date).await;
-    let owidtest_fra = db::gettestdata_owid(&pool, "FRA", ymd_to_day(2020, 6, 6), data_last_date).await;
-    let owidtest_twn = db::gettestdata_owid(&pool, "TWN", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_can =
+        db::gettestdata_owid(&pool, "CAN", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_deu =
+        db::gettestdata_owid(&pool, "DEU", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_fra =
+        db::gettestdata_owid(&pool, "FRA", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let owidtest_twn =
+        db::gettestdata_owid(&pool, "TWN", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let harveyco_kdhe =
+        db::gettestdata_harveyco(&pool, "kdhe", ymd_to_day(2020, 6, 6), data_last_date).await;
+    let harveyco_harveyco =
+        db::gettestdata_harveyco(&pool, "harveyco", ymd_to_day(2020, 6, 6), data_last_date).await;
+    // (pos, total)
+    assert_eq!(
+        (3, 44),
+        *harveyco_kdhe.get(&ymd_to_day(2020, 8, 16)).unwrap()
+    );
+    assert_eq!(
+        (10, 59),
+        *harveyco_harveyco.get(&ymd_to_day(2020, 8, 16)).unwrap()
+    );
+
+    assert_eq!(
+        (0, 13),
+        *harveyco_kdhe.get(&ymd_to_day(2020, 6, 9)).unwrap()
+    );
+    assert_eq!(
+        (0, 0),
+        *harveyco_harveyco.get(&ymd_to_day(2020, 6, 9)).unwrap()
+    );
 
     let cttest_recommended : HashMap<i32, f64> =
         // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
@@ -338,17 +375,19 @@ async fn main() {
         &mut bightml,
         "COVID-19 Test Positivity Rate (Covid Tracking / OWID)",
         "% of tests results positive",
-        vec![("Kansas", &cttest_ks), ("Overall USA", &cttest_us),
-             ("Recommended Maximum", &cttest_recommended),
-             // ("USA (OWID)", &owidtest_us),
-             ("Canada", &owidtest_can),
-             ("Germany", &owidtest_deu),
-             ("France", &owidtest_fra),
-    ("Taiwan", &owidtest_twn)],
+        vec![
+            ("Kansas", &cttest_ks),
+            ("Overall USA", &cttest_us),
+            ("Recommended Maximum", &cttest_recommended),
+            // ("USA (OWID)", &owidtest_us),
+            ("Canada", &owidtest_can),
+            ("Germany", &owidtest_deu),
+            ("France", &owidtest_fra),
+            ("Taiwan", &owidtest_twn),
+        ],
         ymd_to_day(2020, 6, 6),
         data_last_date,
     );
-
 
     ////////////////////// DEATHS
 
@@ -375,7 +414,6 @@ async fn main() {
         data_last_date,
     );
     */
-
 
     //////////////////  Percentage
     /*

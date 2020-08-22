@@ -50,7 +50,8 @@ pub fn write_generic(
     for (label, data) in series {
         let trace = Scatter::new(
             (firstdate..=lastdate).map(day_to_nd),
-            (firstdate..=lastdate).map(|x| data.get(&x).expect(format!("No {}", x).as_str()).clone()),
+            (firstdate..=lastdate)
+                .map(|x| data.get(&x).expect(format!("No {}", x).as_str()).clone()),
         )
         .mode(Mode::Lines)
         .line(line.clone()) // only needed for smoothing
@@ -68,15 +69,16 @@ pub fn write_generic(
     // plot.show_png(1024, 768);
     plot.to_html(format!("html-entire/{}.html", filename));
     let inlinestr = plot.to_inline_html(Some(filename));
-    File::create(format!("html-fragments/{}.html", filename)).unwrap().write_all(inlinestr.as_ref()).unwrap();
-    bightml
+    File::create(format!("html-fragments/{}.html", filename))
+        .unwrap()
         .write_all(inlinestr.as_ref())
         .unwrap();
+    bightml.write_all(inlinestr.as_ref()).unwrap();
     bightml.write_all(b"<br/>\n").unwrap();
 }
 
 pub fn write(
-    filename: &'static str,  // grumble due to plotly library
+    filename: &'static str, // grumble due to plotly library
     bightml: &mut File,
     title: &str,
     yaxis: &str,
@@ -92,7 +94,7 @@ pub fn write(
 }
 
 pub fn writecounties(
-    filename: &'static str,  // static grumble due to plotly
+    filename: &'static str, // static grumble due to plotly
     bightml: &mut File,
     title: &str,
     yaxis: &str,

@@ -159,9 +159,7 @@ pub async fn getcountymaskdata_100k(
         .unwrap()
         .into_iter()
         .for_each(|(county, x, y)| {
-            hm.entry(county)
-                .or_insert(HashMap::new())
-                .insert(x, y);
+            hm.entry(county).or_insert(HashMap::new()).insert(x, y);
         });
     hm
 }
@@ -194,20 +192,44 @@ pub async fn getgeneralmaskdata_100k(
         .collect()
 }
 
+pub async fn gettestdata_harveyco(
+    pool: &sqlx::SqlitePool,
+    source: &str,
+    first_date: i32,
+    last_date: i32,
+) -> HashMap<i32, (i64, i64)> {
+    let querystr = format!(
+        "SELECT date_julian, {}_pos_results, {}_tot_results from harveycotests
+            where date_julian >= ? AND date_julian <= ? order by date_julian",
+        source, source
+    );
+    println!("{}", querystr);
+
+    let query = sqlx::query_as::<_, (i32, i64, i64)>(querystr.as_str());
+    query
+        .bind(first_date)
+        .bind(last_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .map(|(date, pos, tot)| (date, (pos, tot)))
+        .collect()
+}
+
 pub async fn gettestdata(
     pool: &sqlx::SqlitePool,
     state: Option<&str>,
     first_date: i32,
     last_date: i32,
 ) -> HashMap<i32, f64> {
-    let querystr =
-        if let Some(_) = state {
-            "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking
+    let querystr = if let Some(_) = state {
+        "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking
             where state = ? AND date_julian >= ? AND date_julian <= ? order by date_julian"
-        } else {
-            "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking_us
+    } else {
+        "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking_us
             where date_julian >= ? AND date_julian <= ? order by date_julian"
-        };
+    };
     println!("{}", querystr);
 
     let mut query = sqlx::query_as::<_, (i32, f64)>(querystr);
@@ -230,8 +252,7 @@ pub async fn gettestdata_owid(
     first_date: i32,
     last_date: i32,
 ) -> HashMap<i32, f64> {
-    let querystr =
-            "SELECT date_julian, 100.0 * positive_rate from owid
+    let querystr = "SELECT date_julian, 100.0 * positive_rate from owid
             where iso_code = ? AND date_julian >= ? AND date_julian <= ? order by date_julian";
     println!("{}", querystr);
 

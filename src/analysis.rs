@@ -40,7 +40,7 @@ pub fn calcsimplema(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> 
     rethm
 }
 
-/// Populate the simple sum in the second element of the list, modifying it in-place.
+/// Populate the simple sum in the second element of the list
 pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> {
     let mut history: Vec<f64> = Vec::new();
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
@@ -54,6 +54,27 @@ pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64>
                     history.remove(0);
                 }
                 rethm.insert(key, history.iter().sum::<f64>());
+            }
+            None => (),
+        }
+    }
+    rethm
+}
+
+/// Like calcsimplesum, but for (pos, total) test data
+pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize) -> HashMap<i32, (f64)> {
+    let mut history: Vec<(i64, i64)> = Vec::new();
+    let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
+    keys.sort();
+    let mut rethm = HashMap::new();
+    for key in keys.into_iter() {
+        match hm.get(&key) {
+            Some(val) => {
+                history.push(*val);
+                if history.len() > window {
+                    history.remove(0);
+                }
+                rethm.insert(key, history.iter().fold((0, 0), |(pos1, tot1),(pos2, tot2)| (pos1 + pos2, tot1 + tot2)));
             }
             None => (),
         }
