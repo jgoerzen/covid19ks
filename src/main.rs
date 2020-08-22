@@ -20,6 +20,7 @@ use chrono::Local;
 use covid19db::dateutil::*;
 use sqlx::sqlite::SqlitePool;
 use std::collections::HashMap;
+use std::cmp::max;
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
@@ -365,6 +366,29 @@ async fn main() {
     assert_eq!(
         (0, 0),
         *harveyco_harveyco.get(&ymd_to_day(2020, 6, 9)).unwrap()
+    );
+
+    let harveyco_kdhe = analysis::calcsimplerate_testdata(&harveyco_kdhe, 14);
+    let harveyco_harveyco = analysis::calcsimplerate_testdata(&harveyco_harveyco, 14);
+    let kdheval = *harveyco_kdhe.get(&ymd_to_day(2020, 8, 14)).unwrap();
+    let harveycoval = *harveyco_harveyco.get(&ymd_to_day(2020, 8, 14)).unwrap();
+
+
+    assert!(5.708245242 <= kdheval && 5.708245245 >= kdheval);
+    assert!(7.632600258 <= harveycoval && 7.632600261 >= harveycoval);
+    let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
+
+    charts::write_generic(
+        "test-harveyco",
+        &mut bightml,
+        "COVID-19 Test Positivity in Harvey Co, KS",
+        "14-day Positive Rate",
+        vec![
+            ("KDHE data", &harveyco_kdhe),
+            ("HV Co Health data", &harveyco_harveyco),
+        ],
+        ymd_to_day(2020, 6, 6),
+        *harveyco_enddate,
     );
 
     let cttest_recommended : HashMap<i32, f64> =
