@@ -137,6 +137,15 @@ async fn main() {
     )
     .await;
 
+    let mut jhubycounty100k = db::getcountymaskdata_100k(
+        &pool,
+        "jhu/daily",
+        "delta_confirmed",
+        data_first_date,
+        data_last_date,
+    )
+    .await;
+
     let deltconfks = db::getgeneralmaskdata_100k(
         &pool,
         "jhu/daily",
@@ -281,7 +290,7 @@ async fn main() {
     charts::write_generic(
         "centralusa-100k",
         &mut bightml,
-        "New COVID-19 cases in Central USA (NYT)",
+        "New COVID-19 cases in Central USA (JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![
              ("Kansas", &deltconfks),

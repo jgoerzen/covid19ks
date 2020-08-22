@@ -179,7 +179,7 @@ pub async fn getgeneralmaskdata_100k(
         "SELECT date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
             WHERE dataset = ? AND {}
                   AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
-            GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
+            GROUP BY date_julian ORDER BY date_julian",
         field, where_clause
     );
     println!("{}", query);
@@ -246,3 +246,12 @@ pub async fn gettestdata_owid(
         .into_iter()
         .collect()
 }
+
+/*
+pub fn getharveycotesting(
+    // date, neg, pos  -- or is it date, total, pos?
+) {
+    2020-07-24, 74, 8
+        2020-07-25, 18, 2
+}
+*/
