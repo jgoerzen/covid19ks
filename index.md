@@ -17,23 +17,11 @@ Dates of interest:
 
 Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend. :
 
-# COVID-19 in the Central USA
-
-{% include_relative graphs/centralusa-100k.html %}
-
 # New COVID-19 Cases: Global Perspective
 
 {% include_relative graphs/global-100k.html %}
 
 This graph is similar to the one before, but looks at things on a more global perspective.  Again, notice how poorly the USA fares, and how Kansas is even worse.
-
-# COVID-19 Test Positivity Rates - Local & Global Perspective
-
-{% include_relative graphs/test-ctp.html %}
-
-This graph shows what percentage of all COVID-19 tests are coming back positive.  The WHO and CDC [recommend](https://coronavirus.jhu.edu/testing/testing-positivity) no more than 5% (the "recommended maximum" line on the chart).  Values above that indicate insufficient testing in the population and greater likelihood of undetected cases.
-
-Note how many countries are doing better than the recommended, and, as of August 2020, how poorly both Kansas and the United States are doing.
 
 # Updated graph: masks vs. no-mask counties
 
@@ -53,6 +41,14 @@ Some of the relevant data is above; additional data is here.
 
 {% include_relative graphs/counties-100k-sum-nyt.html %}
 
+
+## COVID-19 Test Positivity Rates - Local & Global Perspective
+
+{% include_relative graphs/test-ctp.html %}
+
+This graph shows what percentage of all COVID-19 tests are coming back positive.  The WHO and CDC [recommend](https://coronavirus.jhu.edu/testing/testing-positivity) no more than 5% (the "recommended maximum" line on the chart).  Values above that indicate insufficient testing in the population and greater likelihood of undetected cases.
+
+Note how many countries are doing better than the recommended, and, as of August 2020, how poorly both Kansas and the United States are doing.
 
 
 # About these charts
