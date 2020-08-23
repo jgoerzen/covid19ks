@@ -109,7 +109,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     let mut nytbycounty100k_sum = nytbycounty100k.clone();
     for item in nytbycounty100k_sum.values_mut() {
-        *item = analysis::calcsimplesum(item, 14);
+        *item = analysis::calcsimplesum(item, 14, true);
     }
 
     charts::writecounties_100k(
@@ -295,9 +295,9 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     let owidtest_twn =
         db::gettestdata_owid(pool, "TWN", first_date, last_date).await;
     let harveyco_kdhe =
-        db::gettestdata_harveyco(pool, "kdhe", first_date).await;
+        db::gettestdata_harveyco(pool, "kdhe", ymd_to_day(2020,5,25)).await;
     let harveyco_harveyco =
-        db::gettestdata_harveyco(pool, "harveyco", first_date).await;
+        db::gettestdata_harveyco(pool, "harveyco", ymd_to_day(2020,5,25)).await;
     // (pos, total)
     assert_eq!(
         (3, 44),
@@ -317,8 +317,8 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         harveyco_harveyco.get(&ymd_to_day(2020, 6, 9))
     );
 
-    let harveyco_kdhe = analysis::calcsimplerate_testdata(&harveyco_kdhe, 14);
-    let harveyco_harveyco = analysis::calcsimplerate_testdata(&harveyco_harveyco, 14);
+    let harveyco_kdhe = analysis::calcsimplerate_testdata(&harveyco_kdhe, 14, false);
+    let harveyco_harveyco = analysis::calcsimplerate_testdata(&harveyco_harveyco, 14, false);
     let kdheval = *harveyco_kdhe.get(&ymd_to_day(2020, 8, 14)).unwrap();
     let harveycoval = *harveyco_harveyco.get(&ymd_to_day(2020, 8, 14)).unwrap();
 
@@ -327,6 +327,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
 
     // =100*SUM(E70:E83)/(SUM(D70:D83)+SUM(E70:E83))
     assert!(7.632600258 <= harveycoval && 7.632600261 >= harveycoval);
+
     let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
 
     let cttest_recommended : HashMap<i32, f64> =

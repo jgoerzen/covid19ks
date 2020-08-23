@@ -46,7 +46,7 @@ pub fn calcsimplema(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> 
 }
 
 /// Populate the simple sum in the second element of the list
-pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> {
+pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize, allowpartial: bool) -> HashMap<i32, f64> {
     let mut history: Vec<f64> = Vec::new();
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
@@ -58,7 +58,9 @@ pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64>
                 if history.len() > window {
                     history.remove(0);
                 }
-                rethm.insert(key, history.iter().sum::<f64>());
+                if allowpartial || history.len() == window {
+                    rethm.insert(key, history.iter().sum::<f64>());
+                }
             }
             None => (),
         }
@@ -67,7 +69,7 @@ pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64>
 }
 
 /// Like calcsimplesum, but for (pos, total) test data
-pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize) -> HashMap<i32, f64> {
+pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize, allowpartial: bool) -> HashMap<i32, f64> {
     let mut history: Vec<(i64, i64)> = Vec::new();
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
@@ -79,8 +81,10 @@ pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize) -> 
                 if history.len() > window {
                     history.remove(0);
                 }
-                let sum = history.iter().fold((0, 0), |(pos1, tot1),(pos2, tot2)| (pos1 + pos2, tot1 + tot2));
-                rethm.insert(key, 100f64 * (sum.0 as f64) / (sum.1 as f64));
+                if allowpartial || history.len() == window {
+                    let sum = history.iter().fold((0, 0), |(pos1, tot1),(pos2, tot2)| (pos1 + pos2, tot1 + tot2));
+                    rethm.insert(key, 100f64 * (sum.0 as f64) / (sum.1 as f64));
+                }
             }
             None => (),
         }
