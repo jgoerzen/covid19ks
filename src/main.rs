@@ -329,6 +329,10 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     assert!(7.632600258 <= harveycoval && 7.632600261 >= harveycoval);
     let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
 
+    let cttest_recommended : HashMap<i32, f64> =
+        // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
+        (ymd_to_day(2020, 3, 6)..=last_date).map(|x| (x, 5.0)).collect();
+
     charts::write_generic(
         "test-harveyco",
         bightml,
@@ -337,14 +341,12 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         vec![
             ("KDHE data", &harveyco_kdhe),
             ("HV Co Health data", &harveyco_harveyco),
+            ("Recommended Maximum", &cttest_recommended),
         ],
         first_date,
         *harveyco_enddate,
     );
 
-    let cttest_recommended : HashMap<i32, f64> =
-        // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
-        (ymd_to_day(2020, 3, 6)..=last_date).map(|x| (x, 5.0)).collect();
     charts::write_generic(
         "test-ctp",
         bightml,
