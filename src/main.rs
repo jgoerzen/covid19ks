@@ -313,22 +313,26 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
         db::gettestdata(pool, "KS", first_date, last_date).await;
-    let rate_20200819 = 100f64 * 723.0 / 5578.0;
-    assert!(rate_20200819 + 0.0000001 > *cttest_ks.get(&ymd_to_day(2020, 8, 19)).unwrap());
-    assert!(rate_20200819 - 0.0000001 < *cttest_ks.get(&ymd_to_day(2020, 8, 19)).unwrap());
+    assert_eq!((723, 5578), *cttest_ks.get(&ymd_to_day(2020, 8, 19)).unwrap());
+    let cttest_ks = analysis::calcsimplerate_testdata(&cttest_ks, 14, false);
 
     let owidtest_usa =
         db::gettestdata_owid(pool, "USA", first_date, last_date).await;
-    assert_eq!(6.7f64, *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    assert_eq!((47426, 635809), *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    let owidtest_usa = analysis::calcsimplerate_testdata(&owidtest_usa, 14, false);
 
     let owidtest_can =
         db::gettestdata_owid(pool, "CAN", first_date, last_date).await;
+    let owidtest_can = analysis::calcsimplerate_testdata(&owidtest_can, 14, false);
     let owidtest_deu =
         db::gettestdata_owid(pool, "DEU", first_date, last_date).await;
+    let owidtest_deu = analysis::calcsimplerate_testdata(&owidtest_deu, 14, false);
     let owidtest_fra =
         db::gettestdata_owid(pool, "FRA", first_date, last_date).await;
+    let owidtest_fra = analysis::calcsimplerate_testdata(&owidtest_fra, 14, false);
     let owidtest_twn =
         db::gettestdata_owid(pool, "TWN", first_date, last_date).await;
+    let owidtest_twn = analysis::calcsimplerate_testdata(&owidtest_twn, 14, false);
     let harveyco_kdhe =
         db::gettestdata_harveyco(pool, "kdhe", ymd_to_day(2020,5,25)).await;
     let harveyco_harveyco =
@@ -373,7 +377,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         "test-harveyco",
         bightml,
         "COVID-19 Test Positivity in Harvey Co, KS",
-        "14-day Positive Rate",
+        "14-day % of test results positive",
         vec![
             ("KDHE data", &harveyco_kdhe),
             ("HV Co Health data", &harveyco_harveyco),
@@ -387,16 +391,15 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         "test-ctp",
         bightml,
         "COVID-19 Test Positivity Rate (Covid Tracking / OWID)",
-        "% of tests results positive",
+        "14-day % of test results positive",
         vec![
-            ("Kansas", &cttest_ks),
-            ("Overall USA", &owidtest_usa),
+            ("Kansas (CT)", &cttest_ks),
+            ("USA (OWID)", &owidtest_usa),
             ("Recommended Maximum", &cttest_recommended),
-            // ("USA (OWID)", &owidtest_us),
-            ("Canada", &owidtest_can),
-            ("Germany", &owidtest_deu),
-            ("France", &owidtest_fra),
-            ("Taiwan", &owidtest_twn),
+            ("Canada (OWID)", &owidtest_can),
+            ("Germany (OWID)", &owidtest_deu),
+            ("France (OWID)", &owidtest_fra),
+            ("Taiwan (OWID)", &owidtest_twn),
         ],
         first_date,
         last_date,

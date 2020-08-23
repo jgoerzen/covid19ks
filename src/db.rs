@@ -147,14 +147,14 @@ pub async fn gettestdata(
     state: &str,
     first_date: i32,
     last_date: i32,
-) -> HashMap<i32, f64> {
+) -> HashMap<i32, (i64, i64)> {
     let querystr =
-        "SELECT date_julian, 100.0 * CAST(positiveIncrease AS FLOAT) / CAST(totalTestResultsIncrease AS FLOAT) from covidtracking
+        "SELECT date_julian, positiveIncrease, totalTestResultsIncrease from covidtracking
             where state = ? AND date_julian >= ? AND date_julian <= ? order by date_julian"
     ;
     println!("{}", querystr);
 
-    let query = sqlx::query_as::<_, (i32, f64)>(querystr);
+    let query = sqlx::query_as::<_, (i32, i64, i64)>(querystr);
     query
         .bind(state)
         .bind(first_date)
@@ -163,6 +163,7 @@ pub async fn gettestdata(
         .await
         .unwrap()
         .into_iter()
+        .map(|(date, pos, tot)| (date, (pos, tot)))
         .collect()
 }
 
@@ -171,12 +172,12 @@ pub async fn gettestdata_owid(
     country: &str,
     first_date: i32,
     last_date: i32,
-) -> HashMap<i32, f64> {
-    let querystr = "SELECT date_julian, 100.0 * positive_rate from owid
+) -> HashMap<i32, (i64, i64)> {
+    let querystr = "SELECT date_julian, new_cases, new_tests from owid
             where iso_code = ? AND date_julian >= ? AND date_julian <= ? order by date_julian";
     println!("{}", querystr);
 
-    let query = sqlx::query_as::<_, (i32, f64)>(querystr);
+    let query = sqlx::query_as::<_, (i32, i64, i64)>(querystr);
     query
         .bind(country)
         .bind(first_date)
@@ -185,5 +186,6 @@ pub async fn gettestdata_owid(
         .await
         .unwrap()
         .into_iter()
+        .map(|(date, pos, tot)| (date, (pos, tot)))
         .collect()
 }
