@@ -293,11 +293,11 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
     charts::write_generic(
         "global-100k",
         bightml,
-        "New COVID-19 cases in Selected Regions (NYT / JHU)",
+        "New COVID-19 cases in Selected Regions (JHU + NYT where indicated)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![
             ("Kansas", &deltconfks),
-            ("Sedgwick County", nytbycounty100k.get("Sedgwick").unwrap()),
+            ("Sedgwick County (NYT)", nytbycounty100k.get("Sedgwick").unwrap()),
             ("USA", &deltconfus),
             ("Canada", &deltconfcan),
             ("Germany", &deltconfdeu),
@@ -312,26 +312,26 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
 async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
-        db::gettestdata(pool, "KS", first_date, last_date).await;
+        db::gettestdata(pool, "KS", first_date - 15, last_date).await;
     assert_eq!((723, 5578), *cttest_ks.get(&ymd_to_day(2020, 8, 19)).unwrap());
     let cttest_ks = analysis::calcsimplerate_testdata(&cttest_ks, 14, false);
 
     let owidtest_usa =
-        db::gettestdata_owid(pool, "USA", first_date, last_date).await;
+        db::gettestdata_owid(pool, "USA", first_date - 15, last_date).await;
     assert_eq!((47426, 635809), *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
     let owidtest_usa = analysis::calcsimplerate_testdata(&owidtest_usa, 14, false);
 
     let owidtest_can =
-        db::gettestdata_owid(pool, "CAN", first_date, last_date).await;
+        db::gettestdata_owid(pool, "CAN", first_date - 15, last_date).await;
     let owidtest_can = analysis::calcsimplerate_testdata(&owidtest_can, 14, false);
     let owidtest_deu =
-        db::gettestdata_owid(pool, "DEU", first_date, last_date).await;
+        db::gettestdata_owid(pool, "DEU", first_date - 15, last_date).await;
     let owidtest_deu = analysis::calcsimplerate_testdata(&owidtest_deu, 14, false);
     let owidtest_fra =
-        db::gettestdata_owid(pool, "FRA", first_date, last_date).await;
+        db::gettestdata_owid(pool, "FRA", first_date - 15, last_date).await;
     let owidtest_fra = analysis::calcsimplerate_testdata(&owidtest_fra, 14, false);
     let owidtest_twn =
-        db::gettestdata_owid(pool, "TWN", first_date, last_date).await;
+        db::gettestdata_owid(pool, "TWN", first_date - 15, last_date).await;
     let owidtest_twn = analysis::calcsimplerate_testdata(&owidtest_twn, 14, false);
     let harveyco_kdhe =
         db::gettestdata_harveyco(pool, "kdhe", ymd_to_day(2020,5,25)).await;
@@ -376,11 +376,11 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     charts::write_generic(
         "test-harveyco",
         bightml,
-        "COVID-19 Test Positivity in Harvey Co, KS",
+        "COVID-19 Test Positivity in Harvey Co, KS by data source",
         "14-day % of test results positive",
         vec![
-            ("KDHE data", &harveyco_kdhe),
-            ("HV Co Health data", &harveyco_harveyco),
+            ("KDHE", &harveyco_kdhe),
+            ("HV Co", &harveyco_harveyco),
             ("Recommended Maximum", &cttest_recommended),
         ],
         first_date,
@@ -388,18 +388,18 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     );
 
     charts::write_generic(
-        "test-ctp",
+        "test-global",
         bightml,
-        "COVID-19 Test Positivity Rate (Covid Tracking / OWID)",
+        "COVID-19 Test Positivity Rate (OWID + Covid Tracking where indicated)",
         "14-day % of test results positive",
         vec![
             ("Kansas (CT)", &cttest_ks),
-            ("USA (OWID)", &owidtest_usa),
+            ("USA", &owidtest_usa),
             ("Recommended Maximum", &cttest_recommended),
-            ("Canada (OWID)", &owidtest_can),
-            ("Germany (OWID)", &owidtest_deu),
-            ("France (OWID)", &owidtest_fra),
-            ("Taiwan (OWID)", &owidtest_twn),
+            ("Canada", &owidtest_can),
+            ("Germany", &owidtest_deu),
+            ("France", &owidtest_fra),
+            ("Taiwan", &owidtest_twn),
         ],
         first_date,
         last_date,
