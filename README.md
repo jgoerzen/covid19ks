@@ -90,3 +90,7 @@ You are welcome to copy, distribute, and develop data and website content from T
 The COVID Tracking Project at The Atlantic data and website content is published under a Creative Commons CC BY-NC-4.0 license, which requires users to attribute the source and license type (CC BY-NC-4.0) when sharing our data or website content. The COVID Tracking Project at The Atlantic also grants permission for any derivative use of this data and website content that supports healthcare or medical research (including institutional use by public health and for-profit organizations), or journalistic usage (by nonprofit or for-profit organizations). All other commercial uses are not permitted under the Creative Commons license, and will require permission from The COVID Tracking Project at The Atlantic.
 
 [source](https://covidtracking.com/about-data/license)
+
+## Harvey County Testing Data
+
+This data is a manual import from the Kansas Department of Health and Environment and the Harvey County Health Department.

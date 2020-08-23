@@ -41,7 +41,6 @@ Some of the relevant data is above; additional data is here.
 
 {% include_relative graphs/counties-100k-sum-nyt.html %}
 
-
 ## COVID-19 Test Positivity Rates - Local & Global Perspective
 
 {% include_relative graphs/test-ctp.html %}
@@ -49,6 +48,14 @@ Some of the relevant data is above; additional data is here.
 This graph shows what percentage of all COVID-19 tests are coming back positive.  The WHO and CDC [recommend](https://coronavirus.jhu.edu/testing/testing-positivity) no more than 5% (the "recommended maximum" line on the chart).  Values above that indicate insufficient testing in the population and greater likelihood of undetected cases.
 
 Note how many countries are doing better than the recommended, and, as of August 2020, how poorly both Kansas and the United States are doing.
+
+## COVID-19 Test Positivity Rates - Harvey County, KS
+
+{% include_relative graphs/test-harveyco.html %}
+
+This graph shows the percentage of all COVID-19 tests coming back positive, smoothed across a 2-week window at used in the KSDE metrics.
+
+The source data for this comes from the Kansas Department of Health and Environment (KDHE) and from the Harvey County Health Dept.  Neither makes an automated download available, so these may be updated less frequently than the rest of the data on this site because a human must manually update the numbers.
 
 
 # About these charts
