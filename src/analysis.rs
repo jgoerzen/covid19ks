@@ -30,14 +30,20 @@ pub fn calcsimplema(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64> 
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
     let mut rethm = HashMap::new();
+    let mut previous = None;
     for key in keys.into_iter() {
         match hm.get(&key) {
             Some(val) => {
+                if let Some(p) = previous {
+                    // Make sure we have no gaps in the data
+                    assert_eq!(p + 1, key);
+                }
                 history.push(*val);
                 if history.len() > window {
                     history.remove(0);
                 }
                 rethm.insert(key, history.iter().sum::<f64>() / (window as f64));
+                previous = Some(key);
             }
             None => (),
         }
@@ -51,9 +57,14 @@ pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize, allowpartial: bool) 
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
     let mut rethm = HashMap::new();
+    let mut previous = None;
     for key in keys.into_iter() {
         match hm.get(&key) {
             Some(val) => {
+                if let Some(p) = previous {
+                    // Make sure we have no gaps in the data
+                    assert_eq!(p + 1, key);
+                }
                 history.push(*val);
                 if history.len() > window {
                     history.remove(0);
@@ -61,6 +72,7 @@ pub fn calcsimplesum(hm: &HashMap<i32, f64>, window: usize, allowpartial: bool) 
                 if allowpartial || history.len() == window {
                     rethm.insert(key, history.iter().sum::<f64>());
                 }
+                previous = Some(key);
             }
             None => (),
         }
@@ -74,9 +86,14 @@ pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize, all
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
     let mut rethm = HashMap::new();
+    let mut previous = None;
     for key in keys.into_iter() {
         match hm.get(&key) {
             Some(val) => {
+                if let Some(p) = previous {
+                    // Make sure we have no gaps in the data
+                    assert_eq!(p + 1, key);
+                }
                 history.push(*val);
                 if history.len() > window {
                     history.remove(0);
@@ -85,6 +102,7 @@ pub fn calcsimplerate_testdata(hm: &HashMap<i32, (i64, i64)>, window: usize, all
                     let sum = history.iter().fold((0, 0), |(pos1, tot1),(pos2, tot2)| (pos1 + pos2, tot1 + tot2));
                     rethm.insert(key, 100f64 * (sum.0 as f64) / (sum.1 as f64));
                 }
+                previous = Some(key);
             }
             None => (),
         }
@@ -99,9 +117,14 @@ pub fn calcweightedma(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64
     let mut keys: Vec<i32> = hm.keys().map(|x| x.clone()).collect();
     keys.sort();
     let mut rethm = HashMap::new();
+    let mut previous = None;
     for key in keys.into_iter() {
         match hm.get(&key) {
             Some(val) => {
+                if let Some(p) = previous {
+                    // Make sure we have no gaps in the data
+                    assert_eq!(p + 1, key);
+                }
                 history.push(*val);
                 if history.len() > window {
                     history.remove(0);
@@ -114,6 +137,7 @@ pub fn calcweightedma(hm: &HashMap<i32, f64>, window: usize) -> HashMap<i32, f64
                     key,
                     sum / ((history.len() * (history.len() + 1)) as f64 / 2.0),
                 );
+                previous = Some(key);
             },
             None => (),
         }
