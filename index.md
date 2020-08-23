@@ -43,11 +43,13 @@ Some of the relevant data is above; additional data is here.
 
 ## COVID-19 Test Positivity Rates - Local & Global Perspective
 
-{% include_relative graphs/test-ctp.html %}
+{% include_relative graphs/test-global.html %}
 
 This graph shows what percentage of all COVID-19 tests are coming back positive.  The WHO and CDC [recommend](https://coronavirus.jhu.edu/testing/testing-positivity) no more than 5% (the "recommended maximum" line on the chart).  Values above that indicate insufficient testing in the population and greater likelihood of undetected cases.
 
 Note how many countries are doing better than the recommended, and, as of August 2020, how poorly both Kansas and the United States are doing.
+
+You will observe an unusual peak in the Kansas data beginning July 27 and extending for 14 days.  There was a data correction that occurred in the underlying data source on July 27, and so it reflects in the 14-day average from that date.
 
 ## COVID-19 Test Positivity Rates - Harvey County, KS
 
