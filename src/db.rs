@@ -20,24 +20,6 @@ use crate::counties::Counties;
 use sqlx::prelude::*;
 use std::collections::HashMap;
 
-pub fn makemasksstr(
-    dataset: &str,
-    mainfield: &str,
-    masks: bool,
-    counties: &Counties<'_>,
-) -> String {
-    format!(
-        "SELECT date_julian, SUM({}) FROM cdataset
-            WHERE dataset = '{}' AND province = 'Kansas'
-                  AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
-            GROUP BY date_julian ORDER BY date_julian",
-        mainfield,
-        dataset,
-        if masks { "" } else { "not" },
-        counties.sqlclause().as_str()
-    )
-}
-
 pub fn makemasks100kstr(
     dataset: &str,
     mainfield: &str,
@@ -54,29 +36,6 @@ pub fn makemasks100kstr(
         if masks { "" } else { "not" },
         counties.sqlclause().as_str()
     )
-}
-
-/// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to given field
-pub async fn getmaskdata(
-    pool: &sqlx::SqlitePool,
-    dataset: &str,
-    field: &str,
-    masks: bool,
-    counties: &Counties<'_>,
-    first_date: i32,
-    last_date: i32,
-) -> HashMap<i32, f64> {
-    let query = makemasksstr(dataset, field, masks, counties);
-    println!("{}", query);
-    sqlx::query_as::<_, (i32, i64)>(query.as_str())
-        .bind(first_date)
-        .bind(last_date)
-        .fetch_all(pool)
-        .await
-        .unwrap()
-        .into_iter()
-        .map(|(x, y)| (x, y as f64))
-        .collect()
 }
 
 /// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to given field
@@ -99,38 +58,6 @@ pub async fn getmask100kdata(
         .unwrap()
         .into_iter()
         .collect()
-}
-
-/// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
-pub async fn getcountymaskdata(
-    pool: &sqlx::SqlitePool,
-    dataset: &str,
-    field: &str,
-    first_date: i32,
-    last_date: i32,
-) -> HashMap<String, HashMap<i32, f64>> {
-    let query = format!(
-        "SELECT administrative, date_julian, SUM({}) FROM cdataset
-            WHERE dataset = '{}' AND province = 'Kansas'
-                  AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
-            GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
-        field, dataset
-    );
-    let mut hm = HashMap::new();
-    println!("{}", query);
-    sqlx::query_as::<_, (String, i32, i64)>(query.as_str())
-        .bind(first_date)
-        .bind(last_date)
-        .fetch_all(pool)
-        .await
-        .unwrap()
-        .into_iter()
-        .for_each(|(county, x, y)| {
-            hm.entry(county)
-                .or_insert(HashMap::new())
-                .insert(x, y as f64);
-        });
-    hm
 }
 
 /// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
@@ -265,12 +192,3 @@ pub async fn gettestdata_owid(
         .into_iter()
         .collect()
 }
-
-/*
-pub fn getharveycotesting(
-    // date, neg, pos  -- or is it date, total, pos?
-) {
-    2020-07-24, 74, 8
-        2020-07-25, 18, 2
-}
-*/

@@ -41,18 +41,7 @@ fn get_nth_arg(arg: usize) -> Result<OsString, Box<dyn Error>> {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let first_date = ymd_to_day(2020, 7, 12); // Dr. Norman's original chart used 2020-07-12
-    let last_date = ymd_to_day(2020, 8, 3);
-
-    let data_first_date = ymd_to_day(2020, 5, 29);
-    let data_last_date = dateutc_to_day(&datelocal_to_dateutc(&Local::today())) - 2;
-
-    let _daterange_output = first_date..=last_date;
-    let _daterange_full = data_first_date..=data_last_date;
-    let _daterange_updated = first_date..data_last_date;
-
+async fn writemasks(pool: &SqlitePool, bightml: &mut File, data_first_date: i32, first_date: i32, data_last_date: i32) {
     // Original source: https://www.kansas.com/news/politics-government/article244091222
     // Updated 2020-08-13 per https://www.coronavirus.kdheks.gov/DocumentCenter/View/1424/COVID-19-Kansas-Mask-Vs-No-Mask-Counties-Data
     let maskcounties = counties::Counties::new(vec![
@@ -72,28 +61,6 @@ async fn main() {
         "Shawnee",
         "Wyandotte",
     ]);
-
-    let mut bightml = File::create("html-fragments/all.html").unwrap();
-
-    let filename = match get_nth_arg(1) {
-        Ok(x) => String::from(x.to_str().unwrap()),
-        Err(_) => {
-            println!("Database file not specified; trying covid19.db in current directory");
-            String::from("covid19.db")
-        }
-    };
-
-    if !Path::new(filename.as_str()).exists() {
-        panic!(
-            "{} does not exist; download or specify alternative path on command line",
-            filename
-        )
-    }
-    let pool = SqlitePool::builder()
-        .max_size(5)
-        .build(format!("sqlite::{}", filename).as_ref())
-        .await
-        .expect("Error building");
 
     let mut nytmasks = db::getmask100kdata(
         &pool,
@@ -121,39 +88,63 @@ async fn main() {
 
     charts::write_generic(
         "main-pop100k-nyt",
-        &mut bightml,
+        bightml,
         "COVID-19: Masks vs no-mask counties, KS (NYT)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![("Masks", &nytmasks), ("No masks", &nytnomasks)],
         first_date,
         data_last_date,
     );
+}
 
+async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let mut nytbycounty100k = db::getcountymaskdata_100k(
         &pool,
         "nytimes/us-counties",
         "delta_confirmed",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
 
-    let mut jhubycounty100k = db::getcountymaskdata_100k(
-        &pool,
-        "jhu/daily",
-        "delta_confirmed",
-        data_first_date,
-        data_last_date,
-    )
-    .await;
+    let mut nytbycounty100k_sum = nytbycounty100k.clone();
+    for item in nytbycounty100k_sum.values_mut() {
+        *item = analysis::calcsimplesum(item, 14);
+    }
+
+    charts::writecounties_100k(
+        "counties-100k-sum-nyt",
+        bightml,
+        "14-day New COVID-19 Cases (NYT)",
+        "14-day sum of new cases per 100,000 pop.",
+        &vec!["Marion", "Harvey", "Sedgwick"],
+        &nytbycounty100k_sum,
+        first_date,
+        last_date,
+    );
+
+    for item in nytbycounty100k.values_mut() {
+        *item = analysis::calcsimplema(item, 7);
+    }
+
+    charts::writecounties_100k(
+        "counties-100k-nyt",
+        bightml,
+        "New COVID-19 cases in Selected Counties, Kansas (NYT)",
+        "7-day moving avg of new cases per 100,000 pop.",
+        &vec!["Marion", "Harvey", "Sedgwick"],
+        &nytbycounty100k,
+        first_date,
+        last_date,
+    );
 
     let deltconfks = db::getgeneralmaskdata_100k(
         &pool,
         "jhu/daily",
         "delta_confirmed",
         "province = 'Kansas' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfks = analysis::calcsimplema(&deltconfks, 7);
@@ -162,8 +153,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = 'Missouri' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfmo = analysis::calcsimplema(&deltconfmo, 7);
@@ -172,8 +163,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = 'Nebraska' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfne = analysis::calcsimplema(&deltconfne, 7);
@@ -182,8 +173,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = 'Colorado' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfco = analysis::calcsimplema(&deltconfco, 7);
@@ -192,8 +183,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = 'Oklahoma' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfok = analysis::calcsimplema(&deltconfok, 7);
@@ -203,8 +194,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = '' and country_code = 'US'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfus = analysis::calcsimplema(&deltconfus, 7);
@@ -214,8 +205,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = '' and country_code = 'CA'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfcan = analysis::calcsimplema(&deltconfcan, 7);
@@ -225,8 +216,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = '' and country_code = 'DE'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconfdeu = analysis::calcsimplema(&deltconfdeu, 7);
@@ -236,8 +227,8 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = '' and country_code = 'FR'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconffra = analysis::calcsimplema(&deltconffra, 7);
@@ -247,59 +238,16 @@ async fn main() {
         "jhu/daily",
         "delta_confirmed",
         "province = '' and country_code = 'TW'",
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     )
     .await;
     let deltconftwn = analysis::calcsimplema(&deltconftwn, 7);
 
-    let mut nytbycounty100k_sum = nytbycounty100k.clone();
-    for item in nytbycounty100k_sum.values_mut() {
-        *item = analysis::calcsimplesum(item, 14);
-    }
-
-    charts::writecounties_100k(
-        "counties-100k-sum-nyt",
-        &mut bightml,
-        "14-day New COVID-19 Cases (NYT)",
-        "14-day sum of new cases per 100,000 pop.",
-        &vec!["Marion", "Harvey", "Sedgwick"],
-        &nytbycounty100k_sum,
-        data_first_date,
-        data_last_date,
-    );
-
-    for item in nytbycounty100k.values_mut() {
-        *item = analysis::calcsimplema(item, 7);
-    }
-
-    /*
-    charts::writecounties_100k(
-        "counties-100k-nyt",
-        &mut bightml,
-        "New COVID-19 cases in Selected Counties, Kansas (NYT)",
-        "7-day moving average of new cases per 100,000 population",
-        &vec!["Marion", "McPherson", "Harvey", "Saline", "Sedgwick"],
-        &nytbycounty100k,
-        first_date,
-        data_last_date,
-    );
-    */
-
-    charts::writecounties_100k(
-        "counties-100k-nyt",
-        &mut bightml,
-        "New COVID-19 cases in Selected Counties, Kansas (NYT)",
-        "7-day moving avg of new cases per 100,000 pop.",
-        &vec!["Marion", "Harvey", "Sedgwick"],
-        &nytbycounty100k,
-        data_first_date,
-        data_last_date,
-    );
 
     charts::write_generic(
         "centralusa-100k",
-        &mut bightml,
+        bightml,
         "New COVID-19 cases in Central USA (JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![
@@ -310,12 +258,12 @@ async fn main() {
             ("Oklahoma", &deltconfok),
             ("USA", &deltconfus),
         ],
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     );
     charts::write_generic(
         "global-100k",
-        &mut bightml,
+        bightml,
         "New COVID-19 cases in Selected Regions (NYT / JHU)",
         "7-day moving avg of new cases per 100,000 pop.",
         vec![
@@ -327,28 +275,29 @@ async fn main() {
             ("France", &deltconffra),
             ("Taiwan", &deltconftwn),
         ],
-        data_first_date,
-        data_last_date,
+        first_date,
+        last_date,
     );
 
-    ////////////////////// TEST DATA
+}
 
+async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
-        db::gettestdata(&pool, Some("KS"), ymd_to_day(2020, 6, 6), data_last_date).await;
-    let cttest_us = db::gettestdata(&pool, None, ymd_to_day(2020, 6, 6), data_last_date).await;
-    // let owidtest_us = db::gettestdata_owid(&pool, "USA", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata(pool, Some("KS"), first_date, last_date).await;
+    let cttest_us = db::gettestdata(pool, None, first_date, last_date).await;
+    // let owidtest_us = db::gettestdata_owid(&pool, "USA", first_date, last_date).await;
     let owidtest_can =
-        db::gettestdata_owid(&pool, "CAN", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_owid(pool, "CAN", first_date, last_date).await;
     let owidtest_deu =
-        db::gettestdata_owid(&pool, "DEU", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_owid(pool, "DEU", first_date, last_date).await;
     let owidtest_fra =
-        db::gettestdata_owid(&pool, "FRA", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_owid(pool, "FRA", first_date, last_date).await;
     let owidtest_twn =
-        db::gettestdata_owid(&pool, "TWN", ymd_to_day(2020, 6, 6), data_last_date).await;
+        db::gettestdata_owid(pool, "TWN", first_date, last_date).await;
     let harveyco_kdhe =
-        db::gettestdata_harveyco(&pool, "kdhe", ymd_to_day(2020, 6, 6)).await;
+        db::gettestdata_harveyco(pool, "kdhe", first_date).await;
     let harveyco_harveyco =
-        db::gettestdata_harveyco(&pool, "harveyco", ymd_to_day(2020, 6, 6)).await;
+        db::gettestdata_harveyco(pool, "harveyco", first_date).await;
     // (pos, total)
     assert_eq!(
         (3, 44),
@@ -382,23 +331,23 @@ async fn main() {
 
     charts::write_generic(
         "test-harveyco",
-        &mut bightml,
+        bightml,
         "COVID-19 Test Positivity in Harvey Co, KS",
         "14-day Positive Rate",
         vec![
             ("KDHE data", &harveyco_kdhe),
             ("HV Co Health data", &harveyco_harveyco),
         ],
-        ymd_to_day(2020, 6, 6),
+        first_date,
         *harveyco_enddate,
     );
 
     let cttest_recommended : HashMap<i32, f64> =
         // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
-        (ymd_to_day(2020, 3, 6)..=data_last_date).map(|x| (x, 5.0)).collect();
+        (ymd_to_day(2020, 3, 6)..=last_date).map(|x| (x, 5.0)).collect();
     charts::write_generic(
         "test-ctp",
-        &mut bightml,
+        bightml,
         "COVID-19 Test Positivity Rate (Covid Tracking / OWID)",
         "% of tests results positive",
         vec![
@@ -411,287 +360,50 @@ async fn main() {
             ("France", &owidtest_fra),
             ("Taiwan", &owidtest_twn),
         ],
-        ymd_to_day(2020, 6, 6),
-        data_last_date,
+        first_date,
+        last_date,
     );
+}
 
-    ////////////////////// DEATHS
+#[tokio::main]
+async fn main() {
+    let first_date = ymd_to_day(2020, 7, 12); // Dr. Norman's original chart used 2020-07-12
+    let last_date = ymd_to_day(2020, 8, 3);
 
-    /*
-    let mut nytbycounty100k = db::getcountymaskdata_100k(
-        &pool,
-        "nytimes/us-counties",
-        "delta_deaths",
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    for item in nytbycounty100k.values_mut() {
-        *item = analysis::calcsimplema(item, 7);
+    let data_first_date = ymd_to_day(2020, 5, 29);
+    let data_last_date = dateutc_to_day(&datelocal_to_dateutc(&Local::today())) - 2;
+
+    let _daterange_output = first_date..=last_date;
+    let _daterange_full = data_first_date..=data_last_date;
+    let _daterange_updated = first_date..data_last_date;
+
+    let mut bightml = File::create("html-fragments/all.html").unwrap();
+
+    let filename = match get_nth_arg(1) {
+        Ok(x) => String::from(x.to_str().unwrap()),
+        Err(_) => {
+            println!("Database file not specified; trying covid19.db in current directory");
+            String::from("covid19.db")
+        }
+    };
+
+    if !Path::new(filename.as_str()).exists() {
+        panic!(
+            "{} does not exist; download or specify alternative path on command line",
+            filename
+        )
     }
-    charts::writecounties_100k(
-        "counties-100k-deaths-nyt",
-        &mut bightml,
-        "COVID-19 deaths in Selected Counties, Kansas (NYT)",
-        "7-day moving average of new cases per 100,000 population",
-        &vec!["Marion", "Harvey", "Sedgwick"],
-        &nytbycounty100k,
-        data_first_date,
-        data_last_date,
-    );
-    */
+    let pool = SqlitePool::builder()
+        .max_size(5)
+        .build(format!("sqlite::{}", filename).as_ref())
+        .await
+        .expect("Error building");
 
-    //////////////////  Percentage
-    /*
-    let mut nytmasks = db::getmaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        true,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    let mut nytnomasks = db::getmaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        false,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    let mut jhumasks = db::getmaskdata(
-        &pool,
-        "jhu/daily",
-        "delta_confirmed",
-        true,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    let mut jhunomasks = db::getmaskdata(
-        &pool,
-        "jhu/daily",
-        "delta_confirmed",
-        false,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    jhumasks = analysis::calcsimplema(&jhumasks, 7);
-    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
-    nytmasks = analysis::calcsimplema(&nytmasks, 7);
-    jhunomasks = analysis::calcsimplema(&jhunomasks, 7);
+    writemasks(&pool, &mut bightml, data_first_date, first_date, data_last_date).await;
+    write_incidence_100k(&pool, &mut bightml, data_first_date, data_last_date).await;
 
-    */
-    /*
-    charts::write(
-        "main-nyt",
-        &mut bightml,
-        "COVID-19: Masks vs no-mask counties, KS (NYT)",
-        "7-day moving average of new cases, % relative to July 12",
-        &nytmasks,
-        &nytnomasks,
-        first_date,
-        last_date
-    );
+    ////////////////////// TEST DATA
 
-    charts::write(
-        "main-jhu",
-        &mut bightml,
-        "COVID-19: Masks vs no-mask counties, KS (JHU)",
-        "7-day moving average of new cases, % relative to July 12",
-        &jhumasks,
-        &jhunomasks,
-        first_date,
-        last_date,
-    );
-    */
-    /*
+    write_testing(&pool, &mut bightml, ymd_to_day(2020, 6, 6), data_last_date).await;
 
-    charts::write(
-        "main-updated-nyt",
-        &mut bightml,
-        "COVID-19: Masks vs no-mask counties, KS (Updated NYT)",
-        "7-day moving average of new cases, % relative to July 12",
-        &nytmasks,
-        &nytnomasks,
-        first_date,
-        data_last_date,
-    );
-
-    charts::write(
-        "main-updated-jhu",
-        &mut bightml,
-        "COVID-19: Masks vs no-mask counties, KS (Updated JHU)",
-        "7-day moving average of new cases, % relative to July 12",
-        &jhumasks,
-        &jhunomasks,
-        first_date,
-        data_last_date,
-    );
-
-    ////////////// Replace the in-ram data with the deaths data.
-
-    let mut nytmasks = db::getmaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_deaths",
-        true,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    nytmasks = analysis::calcsimplema(&nytmasks, 7);
-    let mut nytnomasks = db::getmaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_deaths",
-        false,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
-    let mut jhumasks = db::getmaskdata(
-        &pool,
-        "jhu/daily",
-        "delta_deaths",
-        true,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    jhumasks = analysis::calcsimplema(&jhumasks, 7);
-    let mut jhunomasks = db::getmaskdata(
-        &pool,
-        "jhu/daily",
-        "delta_deaths",
-        false,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    jhunomasks = analysis::calcsimplema(&jhunomasks, 7);
-
-    /*
-    charts::write(
-        "deaths-nyt",
-        &mut bightml,
-        "COVID-19 deaths: Mask vs no-mask (NYT)",
-        "7-day moving average of new deaths, % relative to July 12",
-        &nytmasks,
-        &nytnomasks,
-        first_date,
-        last_date,
-    );
-    charts::write(
-        "deaths-jhu",
-        &mut bightml,
-        "COVID-19 deaths: Mask vs no-mask (JHU)",
-        "7-day moving average of new deaths, % relative to July 12",
-        &jhumasks,
-        &jhunomasks,
-        first_date,
-        last_date
-    ); */
-    charts::write(
-        "deaths-updated-nyt",
-        &mut bightml,
-        "COVID-19 deaths: Mask vs no-mask (Updated NYT)",
-        "7-day moving average of new deaths, % relative to July 12",
-        &nytmasks,
-        &nytnomasks,
-        first_date,
-        data_last_date,
-    );
-    charts::write(
-        "deaths-updated-jhu",
-        &mut bightml,
-        "COVID-19 deaths: Mask vs no-mask (Updated JHU)",
-        "7-day moving average of new deaths, % relative to July 12",
-        &jhumasks,
-        &jhunomasks,
-        first_date,
-        data_last_date,
-    );
-
-    /////////////////// Counties
-
-    let mut nytbycounty = db::getcountymaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    for item in nytbycounty.values_mut() {
-        *item = analysis::calcsimplema(item, 7);
-    }
-    let mut jhubycounty = db::getcountymaskdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    for item in jhubycounty.values_mut() {
-        *item = analysis::calcsimplema(item, 7);
-    }
-    */
-    /*
-    charts::writecounties(
-        "counties-nyt",
-        &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (NYT)",
-        "7-day moving average of new cases, % relative to July 12",
-        &vec!["Marion", "McPherson", "Harvey", "Saline"],
-        &nytbycounty,
-        first_date,
-        last_date,
-    );
-    charts::writecounties(
-        "counties-jhu",
-        &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (JHU)",
-        "7-day moving average of new cases, % relative to July 12",
-        &vec!["Marion", "McPherson", "Harvey", "Saline"],
-        &jhubycounty,
-        first_date,
-        last_date,
-    );
-    */
-    /*
-    charts::writecounties(
-        "counties-updated-nyt",
-        &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (Updated NYT)",
-        "7-day moving average of new cases, % relative to July 12",
-        &vec!["Marion", "McPherson", "Harvey", "Saline"],
-        &nytbycounty,
-        first_date,
-        data_last_date,
-    );
-    charts::writecounties(
-        "counties-updated-jhu",
-        &mut bightml,
-        "COVID-19 cases in Selected Counties, Kansas (Updated JHU)",
-        "7-day moving average of new cases, % relative to July 12",
-        &vec!["Marion", "McPherson", "Harvey", "Saline"],
-        &jhubycounty,
-        first_date,
-        data_last_date,
-    );
-    */
 }

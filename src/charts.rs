@@ -21,16 +21,17 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 
-use crate::analysis;
 use covid19db::dateutil::*;
 
 // use itertools_num::linspace;
-use plotly::common::{
-    ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title,
+use plotly::common::{Line, LineShape, Mode, Title,
+    // ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title,
 };
-use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
-use plotly::plot::ImageFormat;
-use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
+// use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
+use plotly::layout::{Axis, Layout};
+// use plotly::plot::ImageFormat;
+// use plotly::{Bar, NamedColor, Plot, Rgb, Rgba, Scatter};
+use plotly::{Plot, Scatter};
 // use rand_distr::{Distribution, Normal, Uniform};
 
 pub fn hmtoseries<U: Clone>(hm: &HashMap<i32, U>, keylist: impl Iterator<Item = i32>) -> (Vec<i32>, Vec<U>) {
@@ -88,52 +89,6 @@ pub fn write_generic(
         .unwrap();
     bightml.write_all(inlinestr.as_ref()).unwrap();
     bightml.write_all(b"<br/>\n").unwrap();
-}
-
-pub fn write(
-    filename: &'static str, // grumble due to plotly library
-    bightml: &mut File,
-    title: &str,
-    yaxis: &str,
-    masks: &HashMap<i32, f64>,
-    nomasks: &HashMap<i32, f64>,
-    firstdate: i32,
-    lastdate: i32,
-) -> () {
-    let maskshm = analysis::pctofday0(masks, firstdate);
-    let nomaskshm = analysis::pctofday0(nomasks, firstdate);
-    let series = vec![("Masks", &maskshm), ("No masks", &nomaskshm)];
-    write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
-}
-
-pub fn writecounties(
-    filename: &'static str, // static grumble due to plotly
-    bightml: &mut File,
-    title: &str,
-    yaxis: &str,
-    counties: &Vec<&str>,
-    bycounty: &HashMap<String, HashMap<i32, f64>>,
-    firstdate: i32,
-    lastdate: i32,
-) {
-    let countypcts: Vec<HashMap<i32, f64>> = counties
-        .iter()
-        .map(|county| {
-            analysis::pctofday0(
-                bycounty
-                    .get(&String::from(*county))
-                    .expect("Can't find county"),
-                firstdate,
-            )
-        })
-        .collect();
-    let series: Vec<(&str, &HashMap<i32, f64>)> = counties
-        .iter()
-        .zip(countypcts.iter())
-        .map(|(county, pct)| (*county, pct))
-        .collect();
-
-    write_generic(filename, bightml, title, yaxis, series, firstdate, lastdate)
 }
 
 pub fn writecounties_100k(
