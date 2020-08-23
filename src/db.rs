@@ -144,24 +144,19 @@ pub async fn gettestdata_harveyco(
 
 pub async fn gettestdata(
     pool: &sqlx::SqlitePool,
-    state: Option<&str>,
+    state: &str,
     first_date: i32,
     last_date: i32,
 ) -> HashMap<i32, f64> {
-    let querystr = if let Some(_) = state {
+    let querystr =
         "SELECT date_julian, 100.0 * CAST(positiveIncrease AS FLOAT) / CAST(totalTestResultsIncrease AS FLOAT) from covidtracking
             where state = ? AND date_julian >= ? AND date_julian <= ? order by date_julian"
-    } else {
-        "SELECT date_julian, 100.0 * CAST(positiveIncrease AS FLOAT) / CAST(totalTestResultsIncrease AS FLOAT) from covidtracking_us
-            where date_julian >= ? AND date_julian <= ? order by date_julian"
-    };
+    ;
     println!("{}", querystr);
 
-    let mut query = sqlx::query_as::<_, (i32, f64)>(querystr);
-    if let Some(s) = state {
-        query = query.bind(s);
-    }
+    let query = sqlx::query_as::<_, (i32, f64)>(querystr);
     query
+        .bind(state)
         .bind(first_date)
         .bind(last_date)
         .fetch_all(pool)
