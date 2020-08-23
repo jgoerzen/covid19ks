@@ -61,7 +61,7 @@ pub async fn getmask100kdata(
 }
 
 /// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
-pub async fn getcountymaskdata_100k(
+pub async fn getcountydata_100k(
     pool: &sqlx::SqlitePool,
     dataset: &str,
     field: &str,
