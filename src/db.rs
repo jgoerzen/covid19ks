@@ -149,10 +149,10 @@ pub async fn gettestdata(
     last_date: i32,
 ) -> HashMap<i32, f64> {
     let querystr = if let Some(_) = state {
-        "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking
+        "SELECT date_julian, 100.0 * CAST(positiveIncrease AS FLOAT) / CAST(totalTestResultsIncrease AS FLOAT) from covidtracking
             where state = ? AND date_julian >= ? AND date_julian <= ? order by date_julian"
     } else {
-        "SELECT date_julian, 100.0 * CAST(positive AS FLOAT) / CAST(total AS FLOAT) from covidtracking_us
+        "SELECT date_julian, 100.0 * CAST(positiveIncrease AS FLOAT) / CAST(totalTestResultsIncrease AS FLOAT) from covidtracking_us
             where date_julian >= ? AND date_julian <= ? order by date_julian"
     };
     println!("{}", querystr);

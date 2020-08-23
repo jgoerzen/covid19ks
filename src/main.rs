@@ -313,7 +313,17 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
         db::gettestdata(pool, Some("KS"), first_date, last_date).await;
-    let cttest_us = db::gettestdata(pool, None, first_date, last_date).await;
+
+    let owidtest_usa =
+        db::gettestdata_owid(pool, "USA", first_date, last_date).await;
+    assert_eq!(6.7f64, *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
+
+    // let cttest_us = db::gettestdata(pool, None, first_date, last_date).await;
+    // let rate_20200820 = 100f64 * 43740.0 / 665436.0;
+    // println!("{}, {}", rate_20200820, *cttest_us.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    //assert!(rate_20200820 + 0.0000001 > *cttest_us.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    //assert!(rate_20200820 - 0.0000001 < *cttest_us.get(&ymd_to_day(2020, 8, 20)).unwrap());
+
     // let owidtest_us = db::gettestdata_owid(&pool, "USA", first_date, last_date).await;
     let owidtest_can =
         db::gettestdata_owid(pool, "CAN", first_date, last_date).await;
@@ -384,7 +394,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         "% of tests results positive",
         vec![
             ("Kansas", &cttest_ks),
-            ("Overall USA", &cttest_us),
+            ("Overall USA", &owidtest_usa),
             ("Recommended Maximum", &cttest_recommended),
             // ("USA (OWID)", &owidtest_us),
             ("Canada", &owidtest_can),
