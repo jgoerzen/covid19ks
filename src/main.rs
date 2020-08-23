@@ -154,17 +154,28 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         &pool,
         "jhu/daily",
         "delta_confirmed",
-        "province = 'Kansas' and country_code = 'US'",
+        "province = 'Kansas' and country_code = 'US' and location_type = 'total-province'",
         first_date,
         last_date,
     )
     .await;
+    let rate_20200820 = 100000f64 * (35907.0 - 35419.0) / 2913314.0;
+    assert!(rate_20200820 + 0.0000001 > *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    assert!(rate_20200820 - 0.0000001 < *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+
+
     let deltconfks = analysis::calcsimplema(&deltconfks, 7);
+
+    // 35907 on 20200820; 32484 on 20200813; that day is included because the delta on 20200814 is nonzero
+    let rate_20200820 = 100000f64 * ((35907.0 - 32484.0) / 7.0) / 2913314.0;
+    assert!(rate_20200820 + 0.0000001 > *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    assert!(rate_20200820 - 0.0000001 < *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+
     let deltconfmo = db::getgeneralmaskdata_100k(
         &pool,
         "jhu/daily",
         "delta_confirmed",
-        "province = 'Missouri' and country_code = 'US'",
+        "province = 'Missouri' and country_code = 'US' and location_type = 'total-province'",
         first_date,
         last_date,
     )
@@ -174,7 +185,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         &pool,
         "jhu/daily",
         "delta_confirmed",
-        "province = 'Nebraska' and country_code = 'US'",
+        "province = 'Nebraska' and country_code = 'US' and location_type = 'total-province'",
         first_date,
         last_date,
     )
@@ -184,7 +195,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         &pool,
         "jhu/daily",
         "delta_confirmed",
-        "province = 'Colorado' and country_code = 'US'",
+        "province = 'Colorado' and country_code = 'US' and location_type = 'total-province'",
         first_date,
         last_date,
     )
@@ -194,7 +205,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         &pool,
         "jhu/daily",
         "delta_confirmed",
-        "province = 'Oklahoma' and country_code = 'US'",
+        "province = 'Oklahoma' and country_code = 'US' and location_type = 'total-province'",
         first_date,
         last_date,
     )
@@ -203,20 +214,26 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     let deltconfus = db::getgeneralmaskdata_100k(
         &pool,
-        "jhu/daily",
+        "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'US'",
+        "province = '' and country_code = 'US' and location_type = 'total-country'",
         first_date,
         last_date,
     )
     .await;
+
+    // 44023 from the graph on their website
+    let rate_20200820 = 100000f64 * 44023.0 / 332639102.0;
+    assert!(rate_20200820 + 0.0000001 > *deltconfus.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    assert!(rate_20200820 - 0.0000001 < *deltconfus.get(&ymd_to_day(2020, 8, 20)).unwrap());
+
     let deltconfus = analysis::calcsimplema(&deltconfus, 7);
 
     let deltconfcan = db::getgeneralmaskdata_100k(
         &pool,
-        "jhu/daily",
+        "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'CA'",
+        "province = '' and country_code = 'CA' and location_type = 'total-country'",
         first_date,
         last_date,
     )
@@ -225,9 +242,9 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     let deltconfdeu = db::getgeneralmaskdata_100k(
         &pool,
-        "jhu/daily",
+        "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'DE'",
+        "province = '' and country_code = 'DE' and location_type = 'total-country'",
         first_date,
         last_date,
     )
@@ -236,9 +253,9 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     let deltconffra = db::getgeneralmaskdata_100k(
         &pool,
-        "jhu/daily",
+        "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'FR'",
+        "province = '' and country_code = 'FR' and location_type = 'total-country'",
         first_date,
         last_date,
     )
@@ -247,9 +264,9 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     let deltconftwn = db::getgeneralmaskdata_100k(
         &pool,
-        "jhu/daily",
+        "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'TW'",
+        "province = '' and country_code = 'TW' and location_type = 'total-country'",
         first_date,
         last_date,
     )
