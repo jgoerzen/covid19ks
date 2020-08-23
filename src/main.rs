@@ -132,6 +132,13 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         *item = analysis::calcsimplema(item, 7);
     }
 
+    // 268 total cases on 2020-08-21; 224 on 2020-08-15 and there were 224 on 2020-08-14 as well.
+    // So 44 new cases over that 7-day period.
+    let rate_20200822 = 100000f64 * (44.0 / 7.0) / 34429.0;
+    assert!(rate_20200822 - 0.0000001 < *nytbycounty100k.get("Harvey").unwrap().get(&ymd_to_day(2020, 8, 21)).unwrap());
+    assert!(rate_20200822 + 0.0000001 > *nytbycounty100k.get("Harvey").unwrap().get(&ymd_to_day(2020, 8, 21)).unwrap());
+
+
     charts::writecounties_100k(
         "counties-100k-nyt",
         bightml,
