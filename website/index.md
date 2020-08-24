@@ -15,7 +15,7 @@ Dates of interest:
 - The Harvey County Fair happened July 30 - August 3 with little observation of COVID-19-safe practices.
 - KDHE Sec. Norman says it can take 1 to 2 incubation periods (so 2-4 weeks) for the effects of masks or other enhanced protocols to be visible in the numbers.  Because this chart uses a 7-day simple moving average, the effect is further delayed.
 
-Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend. :
+Note that the higher the population of a county, the more useful the statistical data is for interpreting a trend.  Marion County looks bouncy because just one or two people can make a significant difference in the case rate even if it is hard to use to predict a trend.
 
 # New COVID-19 Cases: Global Perspective
 

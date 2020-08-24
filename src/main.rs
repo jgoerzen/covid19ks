@@ -240,16 +240,16 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
     .await;
     let deltconfcan = analysis::calcsimplema(&deltconfcan, 7);
 
-    let deltconfdeu = db::getgeneralmaskdata_100k(
+    let deltconfgbr = db::getgeneralmaskdata_100k(
         &pool,
         "jhu/series",
         "delta_confirmed",
-        "province = '' and country_code = 'DE' and location_type = 'total-country'",
+        "province = '' and country_code = 'GB' and location_type = 'total-country'",
         first_date,
         last_date,
     )
     .await;
-    let deltconfdeu = analysis::calcsimplema(&deltconfdeu, 7);
+    let deltconfgbr = analysis::calcsimplema(&deltconfgbr, 7);
 
     let deltconffra = db::getgeneralmaskdata_100k(
         &pool,
@@ -300,7 +300,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
             ("Sedgwick County (NYT)", nytbycounty100k.get("Sedgwick").unwrap()),
             ("USA", &deltconfus),
             ("Canada", &deltconfcan),
-            ("Germany", &deltconfdeu),
+            ("United Kingdom", &deltconfgbr),
             ("France", &deltconffra),
             ("Taiwan", &deltconftwn),
         ],
@@ -324,9 +324,11 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     let owidtest_can =
         db::gettestdata_owid(pool, "CAN", first_date - 15, last_date).await;
     let owidtest_can = analysis::calcsimplerate_testdata(&owidtest_can, 14, false);
-    let owidtest_deu =
-        db::gettestdata_owid(pool, "DEU", first_date - 15, last_date).await;
-    let owidtest_deu = analysis::calcsimplerate_testdata(&owidtest_deu, 14, false);
+    let owidtest_gbr =
+        db::gettestdata_owid(pool, "GBR", first_date - 15, last_date).await;
+    println!("{:?}", owidtest_gbr);
+    let owidtest_gbr = analysis::calcsimplerate_testdata(&owidtest_gbr, 14, false);
+    println!("{:?}", owidtest_gbr);
     let owidtest_fra =
         db::gettestdata_owid(pool, "FRA", first_date - 15, last_date).await;
     let owidtest_fra = analysis::calcsimplerate_testdata(&owidtest_fra, 14, false);
@@ -397,7 +399,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
             ("USA", &owidtest_usa),
             ("Recommended Maximum", &cttest_recommended),
             ("Canada", &owidtest_can),
-            ("Germany", &owidtest_deu),
+            ("United Kingdom", &owidtest_gbr),
             ("France", &owidtest_fra),
             ("Taiwan", &owidtest_twn),
         ],
