@@ -49,7 +49,7 @@ This graph shows what percentage of all COVID-19 tests are coming back positive.
 
 Note how many countries are doing better than the recommended, and, as of August 2020, how poorly both Kansas and the United States are doing.
 
-You will observe an unusual peak in the Kansas data beginning July 27 and extending for 14 days.  There was a data correction that occurred in the underlying data source on July 27, and so it reflects in the 14-day average from that date.
+You will observe an unusual peak in the Kansas data beginning July 27 and extending for 14 days.  There was an apparent data correction that [occurred](https://covidtracking.com/data/state/kansas) at KDHE on July 27, and so it reflects in the 14-day average from that date.  This is apparent in the KDHE screenshots from [July 26](https://covidtracking.com/screenshots/KS/KS-20200726-181019.png) and [July 27](https://covidtracking.com/screenshots/KS/KS-20200727-180947.png) that reflect a reduction of approximately 1000 negative cases and a corresponding reduction in the total test result count, leading to a very high calculated positivity rate on that one day.  Since we are using a 14-day window, this effect persists for 14 days.
 
 ## COVID-19 Test Positivity Rates - Harvey County, KS
 
