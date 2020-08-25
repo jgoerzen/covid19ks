@@ -343,9 +343,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     let owidtest_can = analysis::calcsimplerate_testdata(&owidtest_can, 14, false);
     let owidtest_gbr =
         db::gettestdata_owid(pool, "GBR", first_date - 15, last_date).await;
-    println!("{:?}", owidtest_gbr);
     let owidtest_gbr = analysis::calcsimplerate_testdata(&owidtest_gbr, 14, false);
-    println!("{:?}", owidtest_gbr);
     let owidtest_fra =
         db::gettestdata_owid(pool, "FRA", first_date - 15, last_date).await;
     let owidtest_fra = analysis::calcsimplerate_testdata(&owidtest_fra, 14, false);
