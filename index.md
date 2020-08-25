@@ -59,6 +59,9 @@ This graph shows the percentage of all COVID-19 tests coming back positive, smoo
 
 The source data for this comes from the Kansas Department of Health and Environment (KDHE) and from the Harvey County Health Dept.  Neither makes an automated download available, so these may be updated less frequently than the rest of the data on this site because a human must manually update the numbers.
 
+## COVID-19 Active Cases - Harvey County, KS
+
+{% include_relative graphs/active-harveyco.html %}
 
 # About these charts
 
