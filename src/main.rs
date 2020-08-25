@@ -310,6 +310,23 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
 }
 
+async fn write_harveycoactive(pool: &SqlitePool, bightml: &mut File, first_date: i32) {
+    let hvcoactive = db::getharveyco_active(pool, first_date).await;
+    assert_eq!(47, *hvcoactive.get(&ymd_to_day(2020, 8, 22)).unwrap());
+    let harveyco_enddate = analysis::largestkey(&hvcoactive).unwrap();
+    charts::write_generic(
+        "active-harveyco",
+        bightml,
+        "COVID-19 Active Cases in Harvey Co, KS (HV Co Health / NYT)",
+        "Absolute number of active cases",
+        vec![
+            ("Cases", &hvcoactive),
+        ],
+        first_date,
+        *harveyco_enddate,
+    );
+}
+
 async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
         db::gettestdata(pool, "KS", first_date - 15, last_date).await;
@@ -445,5 +462,6 @@ async fn main() {
     writemasks(&pool, &mut bightml, data_first_date, first_date, data_last_date).await;
     write_incidence_100k(&pool, &mut bightml, data_first_date, data_last_date).await;
     write_testing(&pool, &mut bightml, ymd_to_day(2020, 6, 6), data_last_date).await;
+    write_harveycoactive(&pool, &mut bightml, ymd_to_day(2020, 6, 6)).await;
 
 }

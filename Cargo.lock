@@ -190,6 +190,7 @@ dependencies = [
  "chrono 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "covid19db 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "plotly 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.115 (registry+https://github.com/rust-lang/crates.io-index)",
  "sqlx 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

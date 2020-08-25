@@ -20,6 +20,7 @@ Copyright (c) 2020 John Goerzen
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
+use serde::Serialize;
 
 use covid19db::dateutil::*;
 
@@ -47,12 +48,12 @@ pub fn hmtoseries<U: Clone>(hm: &HashMap<i32, U>, keylist: impl Iterator<Item = 
 }
 
 
-pub fn write_generic(
+pub fn write_generic<Y: Serialize + Clone + 'static>(
     filename: &'static str, // grumble due to plotly library
     bightml: &mut File,
     title: &str,
     yaxis: &str,
-    series: Vec<(&str, &HashMap<i32, f64>)>,
+    series: Vec<(&str, &HashMap<i32, Y>)>,
     firstdate: i32,
     lastdate: i32,
 ) {

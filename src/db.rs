@@ -119,13 +119,36 @@ pub async fn getgeneralmaskdata_100k(
         .collect()
 }
 
+/// Get Harvey Co. active case data
+pub async fn getharveyco_active(
+    pool: &sqlx::SqlitePool,
+    first_date: i32,
+) -> HashMap<i32, i64> {
+    let query =
+        "select harveycodata.date_julian,
+         harveyco_confirmed - harveyco_recovered - absolute_deaths AS harveyco_active
+         FROM harveycodata, cdataset
+         WHERE harveycodata.date_julian = cdataset.date_julian
+         AND dataset = 'nytimes/us-counties' AND province = 'Kansas' AND administrative = 'Harvey'
+         AND harveycodata.date_julian >= ?
+         ORDER BY harveycodata.date_julian";
+    println!("{}", query);
+    sqlx::query_as::<_, (i32, i64)>(query)
+        .bind(first_date)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .collect()
+}
+
 pub async fn gettestdata_harveyco(
     pool: &sqlx::SqlitePool,
     source: &str,
     first_date: i32,
 ) -> HashMap<i32, (i64, i64)> {
     let querystr = format!(
-        "SELECT date_julian, {}_pos_results, {}_tot_results from harveycotests
+        "SELECT date_julian, {}_pos_results, {}_tot_results from harveycodata
             where date_julian >= ? AND {}_pos_results IS NOT NULL AND {}_tot_results IS NOT NULL order by date_julian",
         source, source, source, source
     );

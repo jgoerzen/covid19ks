@@ -10,3 +10,4 @@ covid19db = "2.0"
 sqlx = { version = "0.3", default-features = false, features = ["runtime-tokio", "macros", "sqlite", "chrono"] }
 tokio = { version = "0.2", features = ["macros"] }
 plotly = { version = "0.6", features = [] }
+serde = { version = "1", features = ["derive"] }
