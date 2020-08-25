@@ -55,7 +55,7 @@ You will observe an unusual peak in the Kansas data beginning July 27 and extend
 
 {% include_relative graphs/test-harveyco.html %}
 
-This graph shows the percentage of all COVID-19 tests coming back positive, smoothed across a 2-week window at used in the KSDE metrics.
+This graph shows the percentage of all COVID-19 tests coming back positive, smoothed across a 2-week window as used in the KSDE metrics.
 
 The source data for this comes from the Kansas Department of Health and Environment (KDHE) and from the Harvey County Health Dept.  Neither makes an automated download available, so these may be updated less frequently than the rest of the data on this site because a human must manually update the numbers.
 
