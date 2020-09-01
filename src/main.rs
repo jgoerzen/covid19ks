@@ -222,8 +222,9 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
     )
     .await;
 
-    // 44023 from the graph on their website
-    let rate_20200820 = 100000f64 * 44023.0 / 332639102.0;
+    // 44023 from the graph on their website; on 9-1 it was showing 44036.  TODO recheck in future why different
+    let rate_20200820 = 100000f64 * 44036.0 / 332639102.0;
+    println!("{}, {}", rate_20200820, *deltconfus.get(&ymd_to_day(2020, 8, 20)).unwrap());
     assert!(rate_20200820 + 0.0000001 > *deltconfus.get(&ymd_to_day(2020, 8, 20)).unwrap());
     assert!(rate_20200820 - 0.0000001 < *deltconfus.get(&ymd_to_day(2020, 8, 20)).unwrap());
 
