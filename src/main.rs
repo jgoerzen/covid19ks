@@ -361,7 +361,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         *harveyco_kdhe.get(&ymd_to_day(2020, 8, 16)).unwrap()
     );
     assert_eq!(
-        (10, 59),
+        (10, 49),
         *harveyco_harveyco.get(&ymd_to_day(2020, 8, 16)).unwrap()
     );
 
@@ -382,8 +382,8 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     // =100*SUM(C70:C83)/(SUM(C70:C83)+SUM(B70:B83))
     assert!(5.708245242 <= kdheval && 5.708245245 >= kdheval);
 
-    // =100*SUM(E70:E83)/(SUM(D70:D83)+SUM(E70:E83))
-    assert!(7.632600258 <= harveycoval && 7.632600261 >= harveycoval);
+    // =100*SUM(E70:E83)/(SUM(D70:D83))
+    assert!(8.263305322 <= harveycoval && 8.263305323 >= harveycoval);
 
     let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
 
