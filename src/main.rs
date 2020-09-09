@@ -144,7 +144,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         bightml,
         "New COVID-19 cases in Selected Counties, Kansas (NYT)",
         "7-day moving avg of new cases per 100,000 pop.",
-        &vec!["Marion", "Harvey", "Sedgwick"],
+        &vec!["Marion", "Harvey", "Sedgwick", "McPherson"],
         &nytbycounty100k,
         first_date,
         last_date,
