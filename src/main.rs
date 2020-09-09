@@ -336,7 +336,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
 
     let owidtest_usa =
         db::gettestdata_owid(pool, "USA", first_date - 15, last_date).await;
-    assert_eq!((47426, 942468), *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    assert_eq!((47426, 943535), *owidtest_usa.get(&ymd_to_day(2020, 8, 20)).unwrap());
     let owidtest_usa = analysis::calcsimplerate_testdata(&owidtest_usa, 14, false);
 
     let owidtest_can =
