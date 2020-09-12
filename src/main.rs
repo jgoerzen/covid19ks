@@ -357,7 +357,7 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
         db::gettestdata_harveyco(pool, "harveyco", ymd_to_day(2020,5,25)).await;
     // (pos, total)
     assert_eq!(
-        (3, 45),
+        (3, 42),
         *harveyco_kdhe.get(&ymd_to_day(2020, 8, 16)).unwrap()
     );
     assert_eq!(
