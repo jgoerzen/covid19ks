@@ -122,7 +122,7 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
         bightml,
         "14-day New COVID-19 Cases (NYT)",
         "14-day sum of new cases per 100,000 pop.",
-        &vec!["Marion", "Harvey", "Sedgwick"],
+        &vec!["Marion", "Harvey", "Sedgwick", "McPherson"],
         &nytbycounty100k_sum,
         first_date,
         last_date,
