@@ -1,6 +1,6 @@
 [package]
 name = "covid19ks"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["John Goerzen <jgoerzen@complete.org>"]
 edition = "2018"
 
