@@ -315,6 +315,7 @@ async fn write_harveycoactive(pool: &SqlitePool, bightml: &mut File, first_date:
     let hvcoactive = db::getharveyco_active(pool, first_date).await;
     assert_eq!(47, *hvcoactive.get(&ymd_to_day(2020, 8, 22)).unwrap());
     let harveyco_enddate = analysis::largestkey(&hvcoactive).unwrap();
+    println!("write_harveycoactive: enddate = {}", harveyco_enddate);
     charts::write_generic(
         "active-harveyco",
         bightml,
