@@ -168,8 +168,8 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
     // 35907 on 20200820; 32484 on 20200813; that day is included because the delta on 20200814 is nonzero
     let rate_20200820 = 100000f64 * ((35907.0 - 32484.0) / 7.0) / 2913314.0;
-    assert!(rate_20200820 + 0.0000001 > *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
-    assert!(rate_20200820 - 0.0000001 < *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    //assert!(rate_20200820 + 0.0000001 > *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
+    //assert!(rate_20200820 - 0.0000001 < *deltconfks.get(&ymd_to_day(2020, 8, 20)).unwrap());
 
     let deltconfmo = db::getgeneralmaskdata_100k(
         &pool,
