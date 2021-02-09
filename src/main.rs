@@ -98,10 +98,9 @@ async fn writemasks(pool: &SqlitePool, bightml: &mut File, data_first_date: i32,
 }
 
 async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
-    let mut nytbycounty100k = db::getcountydata_100k(
+    let mut nytbycounty100k = db::getcountydata_100k_nytcounties(
         &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
+        "cases_new",
         first_date,
         last_date,
     )
