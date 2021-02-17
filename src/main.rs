@@ -430,7 +430,7 @@ async fn main() {
     let last_date = ymd_to_day(2020, 8, 3);
 
     let data_first_date = ymd_to_day(2020, 5, 29);
-    let data_last_date = dateutc_to_day(&datelocal_to_dateutc(&Local::today())) - 3;
+    let data_last_date = dateutc_to_day(&datelocal_to_dateutc(&Local::today())) - 2;
 
     let _daterange_output = first_date..=last_date;
     let _daterange_full = data_first_date..=data_last_date;
