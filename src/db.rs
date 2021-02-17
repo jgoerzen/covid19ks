@@ -76,7 +76,8 @@ pub async fn getcountydata_100k(
         field
     );
     let mut hm = HashMap::new();
-    println!("{}", query);
+    println!("getcountydata_100k: {}", query);
+    println!("Bound: {}, {}, {}", dataset, first_date, last_date);
     sqlx::query_as::<_, (String, i32, f64)>(query.as_str())
         .bind(dataset)
         .bind(first_date)
