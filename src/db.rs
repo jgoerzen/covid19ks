@@ -20,46 +20,6 @@ use crate::counties::Counties;
 use sqlx::prelude::*;
 use std::collections::HashMap;
 
-pub fn makemasks100kstr(
-    dataset: &str,
-    mainfield: &str,
-    masks: bool,
-    counties: &Counties<'_>,
-) -> String {
-    format!(
-        "SELECT date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
-            WHERE dataset = '{}' AND province = 'Kansas'
-                  AND date_julian >= ? AND date_julian <= ? AND administrative {} IN {}
-            GROUP BY date_julian ORDER BY date_julian",
-        mainfield,
-        dataset,
-        if masks { "" } else { "not" },
-        counties.sqlclause().as_str()
-    )
-}
-
-/// Read in the summarized data for mask or no-mask counties, returning a HashMap from date_julian to given field
-pub async fn getmask100kdata(
-    pool: &sqlx::SqlitePool,
-    dataset: &str,
-    field: &str,
-    masks: bool,
-    counties: &Counties<'_>,
-    first_date: i32,
-    last_date: i32,
-) -> HashMap<i32, f64> {
-    let query = makemasks100kstr(dataset, field, masks, counties);
-    println!("{}", query);
-    sqlx::query_as::<_, (i32, f64)>(query.as_str())
-        .bind(first_date)
-        .bind(last_date)
-        .fetch_all(pool)
-        .await
-        .unwrap()
-        .into_iter()
-        .collect()
-}
-
 /// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
 pub async fn getcountydata_100k(
     pool: &sqlx::SqlitePool,

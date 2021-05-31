@@ -41,62 +41,6 @@ fn get_nth_arg(arg: usize) -> Result<OsString, Box<dyn Error>> {
     }
 }
 
-async fn writemasks(pool: &SqlitePool, bightml: &mut File, data_first_date: i32, first_date: i32, data_last_date: i32) {
-    // Original source: https://www.kansas.com/news/politics-government/article244091222
-    // Updated 2020-08-13 per https://www.coronavirus.kdheks.gov/DocumentCenter/View/1424/COVID-19-Kansas-Mask-Vs-No-Mask-Counties-Data
-    let maskcounties = counties::Counties::new(vec![
-        "Allen",
-        "Atchison",
-        "Bourbon",
-        "Crawford",
-        "Dickinson",
-        "Douglas",
-        "Franklin",
-        "Grant",
-        "Jewell",
-        "Johnson",
-        "Mitchell",
-        "Montgomery",
-        "Saline",
-        "Shawnee",
-        "Wyandotte",
-    ]);
-
-    let mut nytmasks = db::getmask100kdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        true,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-    let mut nytnomasks = db::getmask100kdata(
-        &pool,
-        "nytimes/us-counties",
-        "delta_confirmed",
-        false,
-        &maskcounties,
-        data_first_date,
-        data_last_date,
-    )
-    .await;
-
-    nytmasks = analysis::calcsimplema(&nytmasks, 7);
-    nytnomasks = analysis::calcsimplema(&nytnomasks, 7);
-
-    charts::write_generic(
-        "main-pop100k-nyt",
-        bightml,
-        "COVID-19: Masks vs no-mask counties, KS (NYT)",
-        "7-day moving avg of new cases per 100,000 pop.",
-        vec![("Masks", &nytmasks), ("No masks", &nytnomasks)],
-        first_date,
-        data_last_date,
-    );
-}
-
 async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let mut nytbycounty100k = db::getcountydata_100k_nytcounties(
         &pool,
@@ -458,7 +402,6 @@ async fn main() {
         .await
         .expect("Error building");
 
-    writemasks(&pool, &mut bightml, data_first_date, first_date, data_last_date).await;
     write_incidence_100k(&pool, &mut bightml, data_first_date, data_last_date).await;
     write_testing(&pool, &mut bightml, ymd_to_day(2020, 6, 6), data_last_date).await;
     write_harveycoactive(&pool, &mut bightml, ymd_to_day(2020, 6, 6)).await;
