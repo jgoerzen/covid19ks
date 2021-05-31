@@ -254,24 +254,6 @@ async fn write_incidence_100k(pool: &SqlitePool, bightml: &mut File, first_date:
 
 }
 
-async fn write_harveycoactive(pool: &SqlitePool, bightml: &mut File, first_date: i32) {
-    let hvcoactive = db::getharveyco_active(pool, first_date).await;
-    assert_eq!(47, *hvcoactive.get(&ymd_to_day(2020, 8, 22)).unwrap());
-    let harveyco_enddate = analysis::largestkey(&hvcoactive).unwrap();
-    println!("write_harveycoactive: enddate = {}", harveyco_enddate);
-    charts::write_generic(
-        "active-harveyco",
-        bightml,
-        "COVID-19 Active Cases in Harvey Co, KS (HV Co Health / NYT)",
-        "Absolute number of active cases",
-        vec![
-            ("Cases", &hvcoactive),
-        ],
-        first_date,
-        *harveyco_enddate,
-    );
-}
-
 async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, last_date: i32) {
     let cttest_ks =
         db::gettestdata(pool, "KS", first_date - 15, last_date).await;
@@ -294,60 +276,10 @@ async fn write_testing(pool: &SqlitePool, bightml: &mut File, first_date: i32, l
     let owidtest_twn =
         db::gettestdata_owid(pool, "TWN", first_date - 15, last_date).await;
     let owidtest_twn = analysis::calcsimplerate_testdata(&owidtest_twn, 14, false);
-    let harveyco_kdhe =
-        db::gettestdata_harveyco(pool, "kdhe", ymd_to_day(2020,5,25)).await;
-    let harveyco_harveyco =
-        db::gettestdata_harveyco(pool, "harveyco", ymd_to_day(2020,5,25)).await;
-    // (pos, total)
-    assert_eq!(
-        (3, 42),
-        *harveyco_kdhe.get(&ymd_to_day(2020, 8, 16)).unwrap()
-    );
-    assert_eq!(
-        (10, 49),
-        *harveyco_harveyco.get(&ymd_to_day(2020, 8, 16)).unwrap()
-    );
-
-    assert_eq!(
-        (0, 13),
-        *harveyco_kdhe.get(&ymd_to_day(2020, 6, 9)).unwrap()
-    );
-    assert_eq!(
-        None,
-        harveyco_harveyco.get(&ymd_to_day(2020, 6, 9))
-    );
-
-    let harveyco_kdhe = analysis::calcsimplerate_testdata(&harveyco_kdhe, 14, false);
-    let harveyco_harveyco = analysis::calcsimplerate_testdata(&harveyco_harveyco, 14, false);
-    let kdheval = *harveyco_kdhe.get(&ymd_to_day(2020, 8, 14)).unwrap();
-    let harveycoval = *harveyco_harveyco.get(&ymd_to_day(2020, 8, 14)).unwrap();
-
-    // =100*SUM(C70:C83)/(SUM(C70:C83)+SUM(B70:B83))
-    // KDHE keeps changing; aborting this check for now.
-    // assert!(5.720338983 <= kdheval && 5.720338984 >= kdheval);
-
-    // =100*SUM(E70:E83)/(SUM(D70:D83))
-    assert!(8.263305322 <= harveycoval && 8.263305323 >= harveycoval);
-
-    let harveyco_enddate = max(analysis::largestkey(&harveyco_kdhe).unwrap(), analysis::largestkey(&harveyco_harveyco).unwrap());
 
     let cttest_recommended : HashMap<i32, f64> =
         // recommended rate is 5% per https://coronavirus.jhu.edu/testing/testing-positivity
         (ymd_to_day(2020, 3, 6)..=last_date).map(|x| (x, 5.0)).collect();
-
-    charts::write_generic(
-        "test-harveyco",
-        bightml,
-        "COVID-19 Test Positivity in Harvey Co, KS by data source",
-        "14-day % of test results positive",
-        vec![
-            ("KDHE", &harveyco_kdhe),
-            ("HV Co", &harveyco_harveyco),
-            ("Recommended Maximum", &cttest_recommended),
-        ],
-        first_date,
-        *harveyco_enddate,
-    );
 
     charts::write_generic(
         "test-global",
@@ -404,6 +336,4 @@ async fn main() {
 
     write_incidence_100k(&pool, &mut bightml, data_first_date, data_last_date).await;
     write_testing(&pool, &mut bightml, ymd_to_day(2020, 6, 6), data_last_date).await;
-    write_harveycoactive(&pool, &mut bightml, ymd_to_day(2020, 6, 6)).await;
-
 }
