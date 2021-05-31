@@ -20,37 +20,6 @@ use crate::counties::Counties;
 use sqlx::prelude::*;
 use std::collections::HashMap;
 
-/// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
-pub async fn getcountydata_100k(
-    pool: &sqlx::SqlitePool,
-    dataset: &str,
-    field: &str,
-    first_date: i32,
-    last_date: i32,
-) -> HashMap<String, HashMap<i32, f64>> {
-    let query = format!(
-        "SELECT administrative, date_julian, 100000.0 * CAST(SUM({}) AS FLOAT) / CAST(SUM(factbook_population) AS FLOAT) FROM cdataset
-            WHERE dataset = ? AND province = 'Kansas'
-                  AND date_julian >= ? AND date_julian <= ?  AND administrative IS NOT NULL
-            GROUP BY date_julian, administrative ORDER BY administrative, date_julian",
-        field
-    );
-    let mut hm = HashMap::new();
-    println!("getcountydata_100k: {}", query);
-    println!("Bound: {}, {}, {}", dataset, first_date, last_date);
-    sqlx::query_as::<_, (String, i32, f64)>(query.as_str())
-        .bind(dataset)
-        .bind(first_date)
-        .bind(last_date)
-        .fetch_all(pool)
-        .await
-        .unwrap()
-        .into_iter()
-        .for_each(|(county, x, y)| {
-            hm.entry(county).or_insert(HashMap::new()).insert(x, y);
-        });
-    hm
-}
 
 /// Read in the summarized data per-county, returning a HashMap of counties to a HashMap from date_julian to given field
 pub async fn getcountydata_100k_nytcounties(
